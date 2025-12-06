@@ -640,7 +640,7 @@ load_header();
                         <div class="event-item">
                             <div class="event-title">${event.titre}</div>
                             <div class="event-meta">
-                                <span><i class="bi bi-calendar3"></i> ${formatDate(event.date_debut)}</span>
+                                <span><i class="bi bi-calendar3"></i> ${formatDate(event.date_event)}</span>
                                 <span><i class="bi bi-geo-alt"></i> ${event.lieu}</span>
                                 <span class="badge badge-primary">${event.participants} participants</span>
                             </div>
@@ -667,7 +667,7 @@ load_header();
                         <div class="event-item">
                             <div class="event-title">${event.titre}</div>
                             <div class="event-meta">
-                                <span><i class="bi bi-calendar3"></i> ${formatDate(event.date_debut)}</span>
+                                <span><i class="bi bi-calendar3"></i> ${formatDate(event.date_event)}</span>
                                 <span class="badge badge-success">Dans ${event.days_until} jour${event.days_until > 1 ? 's' : ''}</span>
                             </div>
                         </div>

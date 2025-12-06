@@ -41,11 +41,11 @@ class DashboardController
             $totalEvents = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
             // Upcoming events (future)
-            $stmt = $this->pdo->query("SELECT COUNT(*) as total FROM evenements WHERE date_debut > NOW()");
+            $stmt = $this->pdo->query("SELECT COUNT(*) as total FROM evenements WHERE date_event > CURDATE()");
             $upcomingEvents = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
-            // Total participants (distinct users)
-            $stmt = $this->pdo->query("SELECT COUNT(DISTINCT id_utilisateur) as total FROM inscriptions");
+            // Total participants (total inscriptions)
+            $stmt = $this->pdo->query("SELECT COUNT(*) as total FROM inscriptions");
             $totalParticipants = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
             // Total categories
@@ -80,11 +80,11 @@ class DashboardController
         try {
             $query = "
                 SELECT 
-                    DATE_FORMAT(date_debut, '%Y-%m') as month,
-                    DATE_FORMAT(date_debut, '%b %Y') as label,
+                    DATE_FORMAT(date_event, '%Y-%m') as month,
+                    DATE_FORMAT(date_event, '%b %Y') as label,
                     COUNT(*) as count
                 FROM evenements
-                WHERE date_debut >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
+                WHERE date_event >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
                 GROUP BY month, label
                 ORDER BY month ASC
             ";
@@ -132,7 +132,7 @@ class DashboardController
                     c.nom as category,
                     COUNT(e.id) as count
                 FROM categories c
-                LEFT JOIN evenements e ON c.id = e.id_categorie
+                LEFT JOIN evenements e ON c.id = e.category_id
                 GROUP BY c.id, c.nom
                 ORDER BY count DESC
             ";
@@ -221,15 +221,15 @@ class DashboardController
                 SELECT 
                     e.id,
                     e.titre,
-                    e.date_debut,
+                    e.date_event,
                     e.lieu,
                     c.nom as categorie,
                     COUNT(i.id) as participants
                 FROM evenements e
-                LEFT JOIN categories c ON e.id_categorie = c.id
-                LEFT JOIN inscriptions i ON e.id = i.id_evenement
-                GROUP BY e.id
-                ORDER BY e.created_at DESC
+                LEFT JOIN categories c ON e.category_id = c.id
+                LEFT JOIN inscriptions i ON e.id = i.evenement_id
+                GROUP BY e.id, e.titre, e.date_event, e.lieu, c.nom
+                ORDER BY e.id DESC
                 LIMIT 5
             ";
 
@@ -240,7 +240,7 @@ class DashboardController
                 return [
                     'id' => (int) $row['id'],
                     'titre' => $row['titre'],
-                    'date_debut' => $row['date_debut'],
+                    'date_event' => $row['date_event'],
                     'lieu' => $row['lieu'],
                     'categorie' => $row['categorie'] ?? 'Non catégorisé',
                     'participants' => (int) $row['participants']
@@ -272,14 +272,14 @@ class DashboardController
                 SELECT 
                     e.id,
                     e.titre,
-                    e.date_debut,
+                    e.date_event,
                     e.lieu,
                     c.nom as categorie,
-                    DATEDIFF(e.date_debut, NOW()) as days_until
+                    DATEDIFF(e.date_event, CURDATE()) as days_until
                 FROM evenements e
-                LEFT JOIN categories c ON e.id_categorie = c.id
-                WHERE e.date_debut > NOW()
-                ORDER BY e.date_debut ASC
+                LEFT JOIN categories c ON e.category_id = c.id
+                WHERE e.date_event > CURDATE()
+                ORDER BY e.date_event ASC
                 LIMIT 5
             ";
 
@@ -290,7 +290,7 @@ class DashboardController
                 return [
                     'id' => (int) $row['id'],
                     'titre' => $row['titre'],
-                    'date_debut' => $row['date_debut'],
+                    'date_event' => $row['date_event'],
                     'lieu' => $row['lieu'],
                     'categorie' => $row['categorie'] ?? 'Non catégorisé',
                     'days_until' => (int) $row['days_until']
@@ -322,13 +322,13 @@ class DashboardController
                 SELECT 
                     e.id,
                     e.titre,
-                    e.date_debut,
+                    e.date_event,
                     c.nom as categorie,
                     COUNT(i.id) as participants
                 FROM evenements e
-                LEFT JOIN categories c ON e.id_categorie = c.id
-                LEFT JOIN inscriptions i ON e.id = i.id_evenement
-                GROUP BY e.id
+                LEFT JOIN categories c ON e.category_id = c.id
+                LEFT JOIN inscriptions i ON e.id = i.evenement_id
+                GROUP BY e.id, e.titre, e.date_event, c.nom
                 ORDER BY participants DESC
                 LIMIT 5
             ";
@@ -340,7 +340,7 @@ class DashboardController
                 return [
                     'id' => (int) $row['id'],
                     'titre' => $row['titre'],
-                    'date_debut' => $row['date_debut'],
+                    'date_event' => $row['date_event'],
                     'categorie' => $row['categorie'] ?? 'Non catégorisé',
                     'participants' => (int) $row['participants']
                 ];
