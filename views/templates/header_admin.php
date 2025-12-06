@@ -443,8 +443,12 @@
 
         <div class="sidebar-user">
             <a href="#" class="user-profile">
-                <div class="user-avatar">
-                    <?= strtoupper(substr($_SESSION['user']['nom'] ?? 'A', 0, 1)) ?>
+                <div class="user-avatar" style="<?= !empty($_SESSION['user']['avatar']) ? 'background: none;' : '' ?>">
+                    <?php if (!empty($_SESSION['user']['avatar'])): ?>
+                        <img src="<?= htmlspecialchars($_SESSION['user']['avatar']) ?>" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 10px;">
+                    <?php else: ?>
+                        <?= strtoupper(substr($_SESSION['user']['nom'] ?? 'A', 0, 1)) ?>
+                    <?php endif; ?>
                 </div>
                 <div class="user-info">
                     <h6><?= htmlspecialchars($_SESSION['user']['prenom'] ?? 'Admin') ?>

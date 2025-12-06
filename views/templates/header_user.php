@@ -60,8 +60,12 @@
                         <div class="dropdown">
                             <a href="#" class="d-flex align-items-center gap-2 text-decoration-none dropdown-toggle"
                                 data-bs-toggle="dropdown">
-                                <div class="user-avatar-small">
-                                    <?= strtoupper(substr($_SESSION["user"]["nom"] ?? 'U', 0, 1)) ?>
+                                <div class="user-avatar-small" style="<?= !empty($_SESSION['user']['avatar']) ? 'background: none;' : '' ?>">
+                                    <?php if (!empty($_SESSION['user']['avatar'])): ?>
+                                        <img src="<?= htmlspecialchars($_SESSION['user']['avatar']) ?>" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                                    <?php else: ?>
+                                        <?= strtoupper(substr($_SESSION["user"]["nom"] ?? 'U', 0, 1)) ?>
+                                    <?php endif; ?>
                                 </div>
                                 <span class="fw-semibold d-none d-md-block" style="color: var(--dark);">
                                     <?= htmlspecialchars($_SESSION["user"]["prenom"] ?? 'User') ?>

@@ -325,10 +325,16 @@ if (session_status() === PHP_SESSION_NONE) {
                                                 </div>
 
                                                 <?php if (isset($_SESSION['user'])): ?>
-                                                    <a href="?page=event_register&id=<?= $e['id'] ?>"
-                                                        class="btn btn-glass w-100 py-3 fw-bold shadow-sm">
-                                                        <i class="bi bi-ticket-perforated me-2"></i> Register for Event
-                                                    </a>
+                                                    <?php if (isset($registeredEventIds) && in_array($e['id'], $registeredEventIds)): ?>
+                                                        <button class="btn btn-secondary w-100 py-3 fw-bold shadow-sm text-white" disabled style="background: #cbd5e1; border: none; opacity: 1; cursor: not-allowed; color: #64748b !important;">
+                                                            <i class="bi bi-check-circle-fill me-2"></i> Already Registered
+                                                        </button>
+                                                    <?php else: ?>
+                                                        <a href="?page=event_register&id=<?= $e['id'] ?>"
+                                                            class="btn btn-glass w-100 py-3 fw-bold shadow-sm">
+                                                            <i class="bi bi-ticket-perforated me-2"></i> Register for Event
+                                                        </a>
+                                                    <?php endif; ?>
                                                 <?php else: ?>
                                                     <a href="?page=login" class="btn btn-glass w-100 py-3 fw-bold shadow-sm">
                                                         <i class="bi bi-box-arrow-in-right me-2"></i> Login to Register

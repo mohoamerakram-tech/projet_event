@@ -65,6 +65,15 @@ class EventController
             });
         }
 
+        // Check for user registrations if logged in
+        $registeredEventIds = [];
+        if (isset($_SESSION['user'])) {
+            require_once __DIR__ . '/../models/Inscription.php';
+            $inscriptionModel = new Inscription($this->pdo);
+            $registrations = $inscriptionModel->getByUserId($_SESSION['user']['email']);
+            $registeredEventIds = array_column($registrations, 'evenement_id');
+        }
+
         require __DIR__ . '/../views/home/home.php';
     }
 
@@ -75,6 +84,15 @@ class EventController
 
         $evenementModel = new Evenement($this->pdo);
         $evenements = $evenementModel->search($query, $categoryId);
+
+        // Check for user registrations if logged in
+        $registeredEventIds = [];
+        if (isset($_SESSION['user'])) {
+            require_once __DIR__ . '/../models/Inscription.php';
+            $inscriptionModel = new Inscription($this->pdo);
+            $registrations = $inscriptionModel->getByUserId($_SESSION['user']['email']);
+            $registeredEventIds = array_column($registrations, 'evenement_id');
+        }
 
         // Return only the loop content
         if (empty($evenements)) {
@@ -96,6 +114,26 @@ class EventController
                 $desc = htmlspecialchars(substr($e['description'], 0, 80)) . '...';
                 $lieu = htmlspecialchars($e['lieu']);
                 $heure = !empty($e['heure']) ? date('H:i', strtotime($e['heure'])) : 'TBA';
+
+                $registerButton = '';
+                if (isset($_SESSION['user'])) {
+                    if (in_array($e['id'], $registeredEventIds)) {
+                        $registerButton = '
+                        <button class="btn btn-secondary w-100 py-3 fw-bold shadow-sm text-white" disabled style="background: #cbd5e1; border: none; opacity: 1; cursor: not-allowed; color: #64748b !important;">
+                            <i class="bi bi-check-circle-fill me-2"></i> Already Registered
+                        </button>';
+                    } else {
+                        $registerButton = '
+                        <a href="?page=event_register&id=' . $e['id'] . '" class="btn btn-glass w-100 py-3 fw-bold shadow-sm">
+                            <i class="bi bi-ticket-perforated me-2"></i> Register for Event
+                        </a>';
+                    }
+                } else {
+                    $registerButton = '
+                    <a href="?page=login" class="btn btn-glass w-100 py-3 fw-bold shadow-sm">
+                        <i class="bi bi-box-arrow-in-right me-2"></i> Login to Register
+                    </a>';
+                }
 
                 echo '
                 <div class="col animate-fade-in">
@@ -139,14 +177,7 @@ class EventController
                     </div>
                 </div>
                 
-                <!-- Modal (Required for the button to work) -->
-                <!-- Note: Loading modals via AJAX like this might require re-initializing Bootstrap modals if they were dynamically added. 
-                     However, since we just replace the inner HTML of the container, existing modals might be lost. 
-                     Ideally, modals should be placed outside the refreshed container or re-initialized.
-                     For this specific request, I will include the modal HTML here. 
-                     Bootstrap 5 delegates click events so it might work, but usually it is better to place modals at the bottom of the page in the main view.
-                     But referencing specific modal IDs inside the loop requires them to be generated here. 
-                -->
+                <!-- Modal -->
                  <div class="modal fade" id="homeEventModal' . $e['id'] . '" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog modal-xl modal-dialog-centered">
                         <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden"
@@ -184,14 +215,7 @@ class EventController
                                                 <p class="mb-0 text-muted small">' . $lieu . '</p>
                                             </div>
                                         </div>
-                                        ' . (isset($_SESSION['user']) ?
-                    '<a href="?page=event_register&id=' . $e['id'] . '" class="btn btn-glass w-100 py-3 fw-bold shadow-sm">
-                                                <i class="bi bi-ticket-perforated me-2"></i> Register for Event
-                                            </a>' :
-                    '<a href="?page=login" class="btn btn-glass w-100 py-3 fw-bold shadow-sm">
-                                                <i class="bi bi-box-arrow-in-right me-2"></i> Login to Register
-                                            </a>'
-                ) . '
+                                        ' . $registerButton . '
                                     </div>
                                 </div>
                                 <div class="col-lg-5 position-relative d-none d-lg-block">

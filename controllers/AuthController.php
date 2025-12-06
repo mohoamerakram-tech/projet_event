@@ -74,7 +74,24 @@ class AuthController
             $avatarPath = null;
 
             // Gestion de l'avatar
-            if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
+            if (isset($_FILES['avatar']) && $_FILES['avatar']['name'] !== '') {
+                // Check for upload errors
+                if ($_FILES['avatar']['error'] !== UPLOAD_ERR_OK) {
+                    $uploadErrors = [
+                        UPLOAD_ERR_INI_SIZE => "L'image est trop volumineuse (max " . ini_get('upload_max_filesize') . ").",
+                        UPLOAD_ERR_FORM_SIZE => "L'image dépasse la taille limite du formulaire.",
+                        UPLOAD_ERR_PARTIAL => "L'image n'a été que partiellement téléchargée.",
+                        UPLOAD_ERR_NO_FILE => "Aucun fichier n'a été téléchargé.",
+                        UPLOAD_ERR_NO_TMP_DIR => "Dossier temporaire manquant.",
+                        UPLOAD_ERR_CANT_WRITE => "Échec de l'écriture du fichier sur le disque.",
+                        UPLOAD_ERR_EXTENSION => "Une extension PHP a arrêté l'envoi de fichier."
+                    ];
+                    $errorCode = $_FILES['avatar']['error'];
+                    $_SESSION["register_error"] = isset($uploadErrors[$errorCode]) ? $uploadErrors[$errorCode] : "Erreur inconnue lors du téléchargement.";
+                    header("Location: index.php?page=register");
+                    exit();
+                }
+
                 $uploadDir = __DIR__ . '/../public/uploads/avatars/';
                 if (!is_dir($uploadDir)) {
                     mkdir($uploadDir, 0777, true);
@@ -94,7 +111,15 @@ class AuthController
 
                     if (move_uploaded_file($fileTmpPath, $dest_path)) {
                         $avatarPath = 'uploads/avatars/' . $newFileName;
+                    } else {
+                        $_SESSION["register_error"] = "Erreur lors de la sauvegarde de l'image.";
+                        header("Location: index.php?page=register");
+                        exit();
                     }
+                } else {
+                    $_SESSION["register_error"] = "Format d'image non supporté. Utilisez JPG, PNG, GIF ou WEBP.";
+                    header("Location: index.php?page=register");
+                    exit();
                 }
             }
 
