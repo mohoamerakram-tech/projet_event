@@ -37,7 +37,7 @@
         <i class="bi bi-people"></i>
       </div>
     </div>
-    <div class="stat-card-value">245</div>
+    <div class="stat-card-value"><?= $totalParticipants ?></div>
     <div class="stat-card-label">Total Participants</div>
     <div class="stat-card-trend up">
       <i class="bi bi-arrow-up"></i>

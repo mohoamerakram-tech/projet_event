@@ -469,10 +469,14 @@
             </div>
 
             <div class="topbar-actions">
-                <div class="topbar-search">
+                <form class="topbar-search" method="GET" action="index.php">
+                    <input type="hidden" name="page" value="<?= htmlspecialchars($_GET['page'] ?? 'admin_dashboard') ?>">
+                    <?php if(isset($_GET['event_id'])): ?>
+                        <input type="hidden" name="event_id" value="<?= htmlspecialchars($_GET['event_id']) ?>">
+                    <?php endif; ?>
                     <i class="bi bi-search"></i>
-                    <input type="text" placeholder="Search events, users...">
-                </div>
+                    <input type="text" name="q" id="admin-search-input" placeholder="Search..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>" autocomplete="off">
+                </form>
 
                 <button class="topbar-icon-btn">
                     <i class="bi bi-bell"></i>
