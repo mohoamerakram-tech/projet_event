@@ -51,7 +51,7 @@ class EventController
     public function publicList()
     {
         $evenementModel = new Evenement($this->pdo);
-        $evenements = $evenementModel->getAll();
+        $evenements = $evenementModel->getAll(true);
 
         require_once __DIR__ . '/../models/Categorie.php';
         $categorieModel = new Categorie($this->pdo);
@@ -83,7 +83,7 @@ class EventController
         $categoryId = $_GET['category_id'] ?? '';
 
         $evenementModel = new Evenement($this->pdo);
-        $evenements = $evenementModel->search($query, $categoryId);
+        $evenements = $evenementModel->search($query, $categoryId, true);
 
         // Check for user registrations if logged in
         $registeredEventIds = [];
