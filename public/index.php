@@ -77,6 +77,33 @@ switch ($page) {
         break;
 
     // --------------------------
+    //  MOT DE PASSE OUBLIÉ
+    // --------------------------
+    case "forgot_password":
+        require_once __DIR__ . '/../controllers/ForgotPasswordController.php';
+        $forgotPassword = new ForgotPasswordController();
+        $forgotPassword->forgotPasswordPage();
+        break;
+
+    case "forgot_password_action":
+        require_once __DIR__ . '/../controllers/ForgotPasswordController.php';
+        $forgotPassword = new ForgotPasswordController();
+        $forgotPassword->processForgotPassword();
+        break;
+
+    case "reset_password":
+        require_once __DIR__ . '/../controllers/ForgotPasswordController.php';
+        $forgotPassword = new ForgotPasswordController();
+        $forgotPassword->resetPasswordPage();
+        break;
+
+    case "reset_password_action":
+        require_once __DIR__ . '/../controllers/ForgotPasswordController.php';
+        $forgotPassword = new ForgotPasswordController();
+        $forgotPassword->processResetPassword();
+        break;
+
+    // --------------------------
     //  ADMIN DASHBOARD
     // --------------------------
     case "admin_dashboard":
