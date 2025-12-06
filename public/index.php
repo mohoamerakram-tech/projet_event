@@ -114,7 +114,59 @@ switch ($page) {
             exit();
         }
 
-        $event->list();   // <-- Charge les événements + la vue !
+        require_once __DIR__ . '/../controllers/DashboardController.php';
+        $dashboard = new DashboardController($pdo);
+        $dashboard->index();
+        break;
+
+    // Dashboard API endpoints (AJAX)
+    case "dashboard_stats":
+        require_login();
+        require_once __DIR__ . '/../controllers/DashboardController.php';
+        $dashboard = new DashboardController($pdo);
+        $dashboard->getStats();
+        break;
+
+    case "dashboard_events_month":
+        require_login();
+        require_once __DIR__ . '/../controllers/DashboardController.php';
+        $dashboard = new DashboardController($pdo);
+        $dashboard->getEventsPerMonth();
+        break;
+
+    case "dashboard_categories":
+        require_login();
+        require_once __DIR__ . '/../controllers/DashboardController.php';
+        $dashboard = new DashboardController($pdo);
+        $dashboard->getCategoryDistribution();
+        break;
+
+    case "dashboard_participants":
+        require_login();
+        require_once __DIR__ . '/../controllers/DashboardController.php';
+        $dashboard = new DashboardController($pdo);
+        $dashboard->getParticipantsGrowth();
+        break;
+
+    case "dashboard_latest":
+        require_login();
+        require_once __DIR__ . '/../controllers/DashboardController.php';
+        $dashboard = new DashboardController($pdo);
+        $dashboard->getLatestEvents();
+        break;
+
+    case "dashboard_upcoming":
+        require_login();
+        require_once __DIR__ . '/../controllers/DashboardController.php';
+        $dashboard = new DashboardController($pdo);
+        $dashboard->getUpcomingEvents();
+        break;
+
+    case "dashboard_top":
+        require_login();
+        require_once __DIR__ . '/../controllers/DashboardController.php';
+        $dashboard = new DashboardController($pdo);
+        $dashboard->getTopEvents();
         break;
 
     case "events_list":
