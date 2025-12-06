@@ -244,9 +244,22 @@ switch ($page) {
         $inscription->liste();
         break;
 
-    // --------------------------
-    //  AJAX
-    // --------------------------
+    case "inscriptions_ajax":
+        // require_login is handled inside ajaxList for cleaner partial return or we can do it here.
+        // It's safer to check login here too or rely on controller.
+        // Controller checks generic admin role, but let's allow it to reach controller.
+        $inscription->ajaxList();
+        break;
+
+    case "inscriptions_export":
+        // require_login handled in controller
+        if (isset($_GET['event_id'])) {
+            $inscription->export($_GET['event_id']);
+        } else {
+            header('Location: index.php?page=inscriptions_list');
+            exit();
+        }
+        break;
     case "category_ajax_create":
         $category->addAjax();
         break;
