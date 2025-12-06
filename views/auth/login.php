@@ -372,6 +372,12 @@ unset($_SESSION["login_error"]);
                             <i class="bi bi-eye-fill" id="toggleIcon"></i>
                         </button>
                     </div>
+                    <div style="text-align: right; margin-top: 8px;">
+                        <a href="index.php?page=forgot_password"
+                            style="color: #667eea; text-decoration: none; font-size: 0.875rem; font-weight: 500;">
+                            Forgot Password?
+                        </a>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn-primary-gradient">
