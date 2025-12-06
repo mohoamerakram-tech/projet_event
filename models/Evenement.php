@@ -11,18 +11,25 @@ class Evenement
     }
 
 
-    public function getAll()
+    public function getAll($onlyUpcoming = false)
     {
-        $stmt = $this->pdo->query("
+        $sql = "
             SELECT e.*, c.nom as category_name 
             FROM evenements e
             LEFT JOIN categories c ON e.category_id = c.id
-            ORDER BY e.date_event ASC, e.heure ASC
-        ");
+        ";
+
+        if ($onlyUpcoming) {
+            $sql .= " WHERE e.date_event >= CURDATE() ";
+        }
+
+        $sql .= " ORDER BY e.date_event ASC, e.heure ASC";
+
+        $stmt = $this->pdo->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function search($query = null, $categoryId = null)
+    public function search($query = null, $categoryId = null, $onlyUpcoming = false)
     {
         $sql = "SELECT e.*, c.nom as category_name 
                 FROM evenements e
@@ -42,6 +49,10 @@ class Evenement
         if (!empty($categoryId)) {
             $sql .= " AND e.category_id = ?";
             $params[] = $categoryId;
+        }
+
+        if ($onlyUpcoming) {
+            $sql .= " AND e.date_event >= CURDATE()";
         }
 
         $sql .= " ORDER BY e.date_event ASC";
