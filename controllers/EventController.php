@@ -28,6 +28,10 @@ class EventController
         $categorieModel = new Categorie($this->pdo);
         $categories = $categorieModel->getAll();
 
+        require_once __DIR__ . '/../models/User.php';
+        $userModel = new User();
+        $totalParticipants = $userModel->count();
+
         require __DIR__ . '/../views/events/list.php';
     }
     public function listForUsers()
