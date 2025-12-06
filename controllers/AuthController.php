@@ -2,15 +2,21 @@
 //session_start();
 
 require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../models/LoginRateLimiter.php';
 
 class AuthController
 {
 
     private $userModel;
+    private $rateLimiter;
 
     public function __construct()
     {
         $this->userModel = new User();
+
+        // Initialiser le rate limiter (5 tentatives max, verrouillage 15 min)
+        $database = new Database();
+        $this->rateLimiter = new LoginRateLimiter($database->getConnection(), 5, 900, 300);
     }
 
     // Afficher la page de login
@@ -27,10 +33,24 @@ class AuthController
             $email = trim($_POST["email"]);
             $password = trim($_POST["password"]);
 
+            // Vérifier si l'IP/email est verrouillé
+            if ($this->rateLimiter->isLocked($email)) {
+                $timeRemaining = $this->rateLimiter->getTimeUntilUnlock($email);
+                $minutes = ceil($timeRemaining / 60);
+
+                $_SESSION["login_error"] = "Trop de tentatives échouées. Veuillez réessayer dans {$minutes} minute(s).";
+                header("Location: index.php?page=login");
+                exit();
+            }
+
             // Vérifier les informations
             $user = $this->userModel->login($email, $password);
 
             if ($user) {
+                // Connexion réussie
+                $this->rateLimiter->recordAttempt($email, true);
+                $this->rateLimiter->resetAttempts($email);
+
                 // Créer la session
                 $_SESSION["user"] = $user;
 
@@ -42,8 +62,17 @@ class AuthController
                 }
                 exit();
             } else {
-                // Erreur → renvoyer vers login
-                $_SESSION["login_error"] = "Email ou mot de passe incorrect.";
+                // Échec de connexion
+                $this->rateLimiter->recordAttempt($email, false);
+
+                $remainingAttempts = $this->rateLimiter->getRemainingAttempts($email);
+
+                if ($remainingAttempts > 0) {
+                    $_SESSION["login_error"] = "Email ou mot de passe incorrect. Il vous reste {$remainingAttempts} tentative(s).";
+                } else {
+                    $_SESSION["login_error"] = "Compte temporairement verrouillé suite à trop de tentatives échouées.";
+                }
+
                 header("Location: index.php?page=login");
                 exit();
             }

@@ -23,12 +23,16 @@ class User
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    // Vérifier le login
+    // Vérifier le login avec password_verify()
     public function login($email, $password)
     {
         $user = $this->getUserByEmail($email);
 
-        if ($user && $user["mot_de_passe"] === $password) {
+        if ($user && password_verify($password, $user["mot_de_passe"])) {
+            // Vérifier si le hash doit être mis à jour (rehash)
+            if (password_needs_rehash($user["mot_de_passe"], PASSWORD_BCRYPT, ['cost' => 12])) {
+                $this->updatePassword($user['id'], $password);
+            }
             return $user;   // Login correct
         }
 
@@ -51,7 +55,8 @@ class User
         // Nettoyage des données
         $nom = htmlspecialchars(strip_tags($nom));
         $email = htmlspecialchars(strip_tags($email));
-        $password = htmlspecialchars(strip_tags($password));
+        // Hasher le mot de passe avec bcrypt
+        $hashedPassword = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
         $role = htmlspecialchars(strip_tags($role));
         // Avatar is nullable, don't strip tags if null, or handle appropriately
         if ($avatar) {
@@ -61,9 +66,27 @@ class User
         // Liaison des paramètres
         $stmt->bindParam(":nom", $nom);
         $stmt->bindParam(":email", $email);
-        $stmt->bindParam(":password", $password);
+        $stmt->bindParam(":password", $hashedPassword);
         $stmt->bindParam(":role", $role);
         $stmt->bindParam(":avatar", $avatar);
+
+        if ($stmt->execute()) {
+            return true;
+        }
+        return false;
+    }
+
+
+    // Mettre à jour le mot de passe
+    public function updatePassword($id, $newPassword)
+    {
+        $query = "UPDATE " . $this->table . " SET mot_de_passe = :password WHERE id = :id";
+        $stmt = $this->conn->prepare($query);
+
+        $hashedPassword = password_hash($newPassword, PASSWORD_BCRYPT, ['cost' => 12]);
+
+        $stmt->bindParam(":password", $hashedPassword);
+        $stmt->bindParam(":id", $id);
 
         if ($stmt->execute()) {
             return true;
