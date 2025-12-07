@@ -21,9 +21,11 @@ class Evenement
 
         if ($onlyUpcoming) {
             $sql .= " WHERE e.date_event >= CURDATE() ";
+            $sql .= " ORDER BY e.date_event ASC, e.heure ASC";
+        } else {
+            // Admin view: Newest added first
+            $sql .= " ORDER BY e.id DESC";
         }
-
-        $sql .= " ORDER BY e.date_event ASC, e.heure ASC";
 
         $stmt = $this->pdo->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

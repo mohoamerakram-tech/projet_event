@@ -58,7 +58,7 @@
                         </button>
                         <button class="btn btn-outline-primary rounded-pill px-4" id="todayBtn">Aujourd'hui</button>
                     </div>
-                    <div>
+                    <div class="flex-grow-1 text-center">
                         <h2 class="fw-bold mb-1" id="calendarTitle">Calendrier</h2>
                         <p class="text-muted mb-0" id="calendarSubtitle">Vue hebdomadaire</p>
                     </div>
@@ -68,20 +68,11 @@
                 </div>
 
                 <div class="calendar-surface card border-0 shadow-sm rounded-4 overflow-hidden">
-                    <div class="calendar-header d-grid">
-                        <div class="time-column-header"></div>
-                        <?php
-                        $weekDays = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
-                        foreach ($weekDays as $day): ?>
-                            <div class="day-header text-center py-3">
-                                <div class="fw-semibold text-uppercase small text-muted"><?= substr($day, 0, 3) ?></div>
-                                <div class="day-number-header mt-1" data-day="<?= $day ?>"></div>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
+                    <!-- Sticky Header is now generated in JS for grid alignment -->
+
 
                     <div class="calendar-body-wrapper" style="max-height: 70vh; overflow-y: auto;">
-                        <div class="calendar-body d-grid" id="calendarBody"></div>
+                        <div class="calendar-body" id="calendarBody"></div>
                     </div>
                 </div>
             </div>
@@ -155,24 +146,6 @@
         background: #fff;
     }
 
-    .calendar-header {
-        grid-template-columns: 60px repeat(7, 1fr);
-        border-bottom: 2px solid #e8eaed;
-        background: #f8f9fa;
-    }
-
-    .time-column-header {
-        border-right: 1px solid #e8eaed;
-    }
-
-    .day-header {
-        border-right: 1px solid #e8eaed;
-    }
-
-    .day-header:last-child {
-        border-right: none;
-    }
-
     .day-number-header {
         font-size: 1.5rem;
         font-weight: 400;
@@ -185,16 +158,34 @@
     }
 
     .calendar-body {
-        grid-template-columns: 60px repeat(7, 1fr);
+        display: grid !important;
+        grid-template-columns: 60px repeat(7, 1fr) !important;
         position: relative;
+        width: 100%;
     }
 
+    /* New Sticky Header Styles */
+    .sticky-header {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: #f8f9fa;
+        border-bottom: 2px solid #e8eaed;
+        border-right: 1px solid #e8eaed;
+    }
+
+    .sticky-header:last-child {
+        border-right: none;
+    }
+
+    /* Time Slots */
     .time-slot {
-        height: 60px;
+        min-height: 60px;
+        /* Allow expansion for multiple events */
         border-bottom: 1px solid #e8eaed;
         border-right: 1px solid #e8eaed;
         position: relative;
-        cursor: pointer;
+        background-color: #fff;
         transition: background-color 0.15s ease;
     }
 
@@ -210,10 +201,16 @@
         color: #70757a;
         background: #fff;
         padding: 0 4px;
+        z-index: 5;
     }
 
     .time-slot.day-cell {
         border-right: 1px solid #e8eaed;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        padding: 4px 2px 2px 4px;
+        /* Space for events, top padding avoids time label */
     }
 
     .time-slot.day-cell:last-child {
@@ -224,34 +221,47 @@
         border-top: 1px solid #dadce0;
     }
 
+    /* Events */
     .event-block {
-        position: absolute;
-        left: 1px;
-        right: 1px;
-        background: #1a73e8;
-        color: white;
+        position: relative;
+        /* Changed from absolute to relative for stacking */
+        width: 100%;
+        background: rgba(232, 240, 254, 0.95);
+        color: #185abc;
         padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 0.8rem;
-        font-weight: 500;
-        z-index: 10;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        line-height: 1.2;
         cursor: pointer;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        border-left: 3px solid #1967d2;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        margin-bottom: 2px;
+        z-index: 10;
+        top: 0;
+        /* Reset top */
     }
 
     .event-block:hover {
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+        z-index: 20;
     }
 
     .event-block.secondary {
-        background: #34a853;
+        background: rgba(230, 244, 234, 0.95);
+        color: #137333;
+        border-left-color: #137333;
     }
 
     .event-block.tertiary {
-        background: #ea4335;
+        background: rgba(254, 239, 236, 0.95);
+        color: #c5221f;
+        border-left-color: #c5221f;
     }
 
     .calendar-body-wrapper {
@@ -352,16 +362,25 @@
             return value.toString().substring(0, 10);
         };
 
-        const events = <?php echo json_encode($evenements, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+        const events = <?php echo json_encode($evenements ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+
+        console.log('Calendar Events:', events); // Debugging
+
         const eventsByDateTime = {};
-        events.forEach(evt => {
-            const dateKey = normalizeDate(evt.date_event);
-            if (!dateKey) return;
-            if (!eventsByDateTime[dateKey]) {
-                eventsByDateTime[dateKey] = [];
-            }
-            eventsByDateTime[dateKey].push(evt);
-        });
+        if (Array.isArray(events)) {
+            events.forEach(evt => {
+                if (!evt || !evt.date_event) return;
+
+                const dateKey = normalizeDate(evt.date_event);
+                if (!dateKey) return;
+
+                if (!eventsByDateTime[dateKey]) {
+                    eventsByDateTime[dateKey] = [];
+                }
+                eventsByDateTime[dateKey].push(evt);
+            });
+        }
+
         Object.keys(eventsByDateTime).forEach(date => {
             eventsByDateTime[date].sort((a, b) => (a.heure || '') > (b.heure || '') ? 1 : -1);
         });
@@ -446,18 +465,34 @@
                 sidebarToday.textContent = 'Aujourd\'hui : ' + longDateFormatter.format(new Date());
             }
 
-            const dayHeaders = document.querySelectorAll('.day-number-header');
+            // 1. Render Sticky Header (Corner + 7 Days)
+            const corner = document.createElement('div');
+            corner.className = 'sticky-header time-column-header';
+            calendarBody.appendChild(corner);
+
+            const frDays = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
-            dayHeaders.forEach((header, i) => {
-                const day = new Date(currentWeekStart);
-                day.setDate(currentWeekStart.getDate() + i);
-                header.textContent = day.getDate();
-                header.classList.toggle('today', day.toDateString() === today.toDateString());
+            frDays.forEach((dName, i) => {
+                const dayDate = new Date(currentWeekStart);
+                dayDate.setDate(currentWeekStart.getDate() + i);
+
+                const headerCell = document.createElement('div');
+                headerCell.className = 'sticky-header day-header text-center py-3';
+
+                const isToday = formatDateKey(dayDate) === formatDateKey(today);
+                const numClass = isToday ? 'day-number-header today' : 'day-number-header';
+
+                headerCell.innerHTML = `
+                    <div class="fw-semibold text-uppercase small text-muted">${dName.substring(0,3)}</div>
+                    <div class="${numClass} mt-1">${dayDate.getDate()}</div>
+                `;
+                calendarBody.appendChild(headerCell);
             });
 
-            for (let hour = 0; hour < 24; hour++) {
+            // 2. Render Time Slots
+            for (let hour = 0; hour < 24; hour += 2) {
                 const timeSlot = document.createElement('div');
                 timeSlot.className = 'time-slot';
                 if (hour > 0) {
@@ -487,6 +522,10 @@
                     const isoDate = formatDateKey(day);
                     const dayEvents = eventsByDateTime[isoDate] || [];
 
+                    if (dayEvents.length > 0) {
+                        console.log(`Found ${dayEvents.length} events for date ${isoDate}`);
+                    }
+
                     dayEvents.forEach((evt, index) => {
                         let eventHour;
                         if (evt.heure) {
@@ -496,7 +535,10 @@
                             eventHour = 9 + (index % 9);
                         }
 
-                        if (hour === eventHour) {
+                        // Check if event falls in this 2-hour block
+                        // e.g. block is 12 (12-14). Event at 12 or 13 should match.
+                        if (eventHour >= hour && eventHour < hour + 2) {
+                            console.log(`Rendering event '${evt.titre}' at ${hour}:00 block on ${isoDate}`);
                             const eventBlock = document.createElement('div');
                             eventBlock.className = 'event-block';
                             if (index % 3 === 1) eventBlock.classList.add('secondary');

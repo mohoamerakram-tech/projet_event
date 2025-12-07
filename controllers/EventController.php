@@ -58,6 +58,10 @@ class EventController
         $evenementModel = new Evenement($this->pdo);
         $evenements = $evenementModel->getAll(true);
 
+        require_once __DIR__ . '/../models/User.php';
+        $userModel = new User();
+        $userCount = $userModel->count();
+
         require_once __DIR__ . '/../models/Categorie.php';
         $categorieModel = new Categorie($this->pdo);
         $categories = $categorieModel->getAll();
@@ -310,7 +314,12 @@ class EventController
                 );
             }
 
-            header("Location: ../public/index.php?page=admin_dashboard");
+            // Dynamic redirect
+            $redirectUrl = '../public/index.php?page=admin_dashboard';
+            if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
+                $redirectUrl = $_SERVER['HTTP_REFERER'];
+            }
+            header("Location: " . $redirectUrl);
             exit();
         }
 
@@ -391,7 +400,12 @@ class EventController
                 }
             }
 
-            header("Location: ../public/index.php?page=admin_dashboard");
+            // Dynamic redirect
+            $redirectUrl = '../public/index.php?page=admin_dashboard';
+            if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
+                $redirectUrl = $_SERVER['HTTP_REFERER'];
+            }
+            header("Location: " . $redirectUrl);
             exit;
         }
 
@@ -437,7 +451,12 @@ class EventController
             }
         }
 
-        header("Location: ../public/index.php?page=admin_dashboard");
+        // Dynamic redirect based on referer
+        $redirectUrl = '../public/index.php?page=admin_dashboard';
+        if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
+            $redirectUrl = $_SERVER['HTTP_REFERER'];
+        }
+        header("Location: " . $redirectUrl);
         exit();
     }
 }

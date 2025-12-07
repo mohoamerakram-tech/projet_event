@@ -180,7 +180,7 @@ if (session_status() === PHP_SESSION_NONE) {
                 <div class="col-md-4">
                     <div class="glass-panel p-4 text-center h-100 transition-hover">
                         <i class="bi bi-people text-secondary mb-3 d-block" style="font-size: 2.5rem;"></i>
-                        <h2 class="fw-bold">1000+</h2>
+                        <h2 class="fw-bold"><?= $userCount ?? '1000' ?>+</h2>
                         <p class="text-muted mb-0">Community Members</p>
                     </div>
                 </div>
