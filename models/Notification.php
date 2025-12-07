@@ -16,6 +16,19 @@ class Notification
         }
     }
 
+    // Check if notification exists
+    public function exists($userId, $eventId, $type)
+    {
+        $query = "SELECT COUNT(*) as count FROM " . $this->table . " WHERE user_id = :user_id AND event_id = :event_id AND type = :type";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":user_id", $userId);
+        $stmt->bindParam(":event_id", $eventId);
+        $stmt->bindParam(":type", $type);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row['count'] > 0;
+    }
+
     // Create a new notification
     public function create($userId, $message, $type = 'info', $eventId = null)
     {

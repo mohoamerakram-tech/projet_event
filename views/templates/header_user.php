@@ -285,7 +285,30 @@
 
                         if (isset($pdo)) {
                             require_once __DIR__ . '/../../models/Notification.php';
+                            require_once __DIR__ . '/../../models/Inscription.php';
+                            
                             $notifModel = new Notification($pdo);
+                            $inscriptionModel = new Inscription($pdo);
+                            
+                            // Check for reminders (events starting in < 1 hour)
+                            // Ideally this should be a background job, but for this setup we do it on load
+                            if (isset($_SESSION['user']['id'])) {
+                                $upcomingReminders = $inscriptionModel->getUpcomingReminders(1); // 1 hour window
+                                foreach ($upcomingReminders as $reminder) {
+                                    if ($reminder['user_id'] == $_SESSION['user']['id']) {
+                                        // Check if reminder already sent
+                                        if (!$notifModel->exists($reminder['user_id'], $reminder['evenement_id'], 'reminder')) {
+                                            $notifModel->create(
+                                                $reminder['user_id'],
+                                                "Reminder: <strong>" . htmlspecialchars($reminder['titre']) . "</strong> starts in less than an hour! (" . date('H:i', strtotime($reminder['heure'])) . ")",
+                                                "reminder",
+                                                $reminder['evenement_id']
+                                            );
+                                        }
+                                    }
+                                }
+                            }
+
                             $unreadCount = $notifModel->getUnreadCount($_SESSION['user']['id']);
                             $notifications = $notifModel->getAllByUserId($_SESSION['user']['id'], 5);
                         } else {
@@ -337,7 +360,7 @@
                                                 $iconClass = 'check-circle-fill';
                                                 $bgClass = 'success';
                                             }
-                                            if ($notif['type'] == 'warning') {
+                                            if ($notif['type'] == 'warning' || $notif['type'] == 'reminder') {
                                                 $iconClass = 'exclamation-triangle-fill';
                                                 $bgClass = 'warning';
                                             }

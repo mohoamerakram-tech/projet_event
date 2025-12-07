@@ -431,25 +431,30 @@ class EventController
         $event = $evenementModel->getById($id);
         $eventTitle = $event ? $event['titre'] : 'Event';
 
-        // Delete the event
-        $evenementModel->delete($id);
-
-        // Send notifications (must do BEFORE delete if we want to link event? No, event is gone. Link is null.)
-        // Actually, we should notify BEFORE delete if we want keys to work, but keys are SET NULL on delete.
-        // But the message persists.
+        // Send notifications BEFORE deletion to ensure data integrity
         require_once __DIR__ . '/../models/Notification.php';
         $notificationModel = new Notification($this->pdo);
 
+        // DEBUG LOGGING
+        file_put_contents(__DIR__ . '/../debug_log.txt', "--- DELETING EVENT $id ---\n", FILE_APPEND);
+        file_put_contents(__DIR__ . '/../debug_log.txt', "Found " . count($participants) . " participants\n", FILE_APPEND);
+
         foreach ($participants as $p) {
             if (isset($p['user_id'])) {
-                $notificationModel->create(
+                $status = $notificationModel->create(
                     $p['user_id'],
                     "Event Cancelled: <strong>" . htmlspecialchars($eventTitle) . "</strong> has been cancelled.",
                     "danger",
                     null
                 );
+                file_put_contents(__DIR__ . '/../debug_log.txt', "Notified User ID " . $p['user_id'] . " - Status: " . ($status ? 'OK' : 'FAIL') . "\n", FILE_APPEND);
+            } else {
+                file_put_contents(__DIR__ . '/../debug_log.txt', "Skipping participant " . $p['nom_participant'] . " (No User ID)\n", FILE_APPEND);
             }
         }
+
+        // Delete the event
+        $evenementModel->delete($id);
 
         // Dynamic redirect based on referer
         $redirectUrl = '../public/index.php?page=admin_dashboard';

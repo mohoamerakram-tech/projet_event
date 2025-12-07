@@ -20,7 +20,7 @@ class Evenement
         ";
 
         if ($onlyUpcoming) {
-            $sql .= " WHERE e.date_event >= CURDATE() ";
+            $sql .= " WHERE (e.date_event > CURDATE() OR (e.date_event = CURDATE() AND e.heure >= CURTIME())) ";
             $sql .= " ORDER BY e.date_event ASC, e.heure ASC";
         } else {
             // Admin view: Newest added first
@@ -54,7 +54,7 @@ class Evenement
         }
 
         if ($onlyUpcoming) {
-            $sql .= " AND e.date_event >= CURDATE()";
+            $sql .= " AND (e.date_event > CURDATE() OR (e.date_event = CURDATE() AND e.heure >= CURTIME()))";
         }
 
         $sql .= " ORDER BY e.date_event ASC";

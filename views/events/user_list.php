@@ -5,9 +5,12 @@ load_header();
 $upcomingEvents = [];
 $pastEvents = [];
 $currentDate = date('Y-m-d');
+$currentTime = date('H:i:s');
 
 foreach ($evenements as $event) {
-    if ($event['date_event'] >= $currentDate) {
+    if ($event['date_event'] > $currentDate) {
+        $upcomingEvents[] = $event;
+    } elseif ($event['date_event'] == $currentDate && $event['heure'] > $currentTime) {
         $upcomingEvents[] = $event;
     } else {
         $pastEvents[] = $event;
@@ -65,7 +68,7 @@ foreach ($evenements as $event) {
                     <i class="bi bi-check-circle-fill text-success fs-3"></i>
                 </div>
                 <div>
-                    <h3 class="fw-bold mb-0">0</h3>
+                    <h3 class="fw-bold mb-0"><?= count($pastEvents) ?></h3>
                     <p class="text-muted mb-0">Completed</p>
                 </div>
             </div>

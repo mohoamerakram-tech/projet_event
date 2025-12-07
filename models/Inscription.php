@@ -65,7 +65,7 @@ class Inscription
             $params[] = "%$search%";
         }
 
-        $sql .= " GROUP BY e.id ORDER BY e.date_event DESC";
+        $sql .= " GROUP BY e.id ORDER BY CASE WHEN e.date_event >= CURDATE() THEN 0 ELSE 1 END ASC, ABS(DATEDIFF(e.date_event, CURDATE())) ASC";
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
@@ -94,6 +94,21 @@ class Inscription
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    public function getUpcomingReminders($windowInHours = 1)
+    {
+        $sql = "
+            SELECT i.email_participant, e.id as evenement_id, e.titre, e.date_event, e.heure, u.id as user_id 
+            FROM inscriptions i
+            JOIN evenements e ON i.evenement_id = e.id
+            LEFT JOIN users u ON i.email_participant = u.email
+            WHERE e.date_event = CURDATE() 
+            AND e.heure BETWEEN CURTIME() AND ADDTIME(CURTIME(), SEC_TO_TIME(? * 3600))
+        ";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$windowInHours]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
