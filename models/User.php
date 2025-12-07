@@ -129,4 +129,17 @@ class User
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    // Récupérer tous les administrateurs
+    public function getAdmins()
+    {
+        $query = "SELECT * FROM " . $this->table . " WHERE role = 'admin'";
+        // Ensure connection exists before preparing
+        if ($this->conn) {
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+        return [];
+    }
 }

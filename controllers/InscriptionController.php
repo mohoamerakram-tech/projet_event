@@ -41,6 +41,18 @@ class InscriptionController
                 $eventId
             );
 
+            // ADMIN NOTIFICATION: Capacity Reached Check
+            if ($event['capacite']) {
+                $currentParticipants = $inscriptionModel->getByEventId($eventId); // Retrieve list to count
+                if (count($currentParticipants) >= $event['capacite']) {
+                    $notificationModel->createForAdmins(
+                        "Capacity Reached: <strong>" . htmlspecialchars($eventTitle) . "</strong> is now full (" . $event['capacite'] . " participants).",
+                        "warning",
+                        $eventId
+                    );
+                }
+            }
+
             header('Location: index.php?page=user_events&success=registered');
         } else {
             // Already registered or error
@@ -77,6 +89,14 @@ class InscriptionController
                     $_SESSION['user']['id'],
                     "Registration Cancelled: You have cancelled your registration.",
                     "info",
+                    null
+                );
+
+                // ADMIN NOTIFICATION: User Cancelled
+                $userName = $_SESSION['user']['nom'] . ' ' . $_SESSION['user']['prenom'];
+                $notificationModel->createForAdmins(
+                    "Registration Cancelled: User <strong>" . htmlspecialchars($userName) . "</strong> cancelled a registration.",
+                    "warning",
                     null
                 );
             }

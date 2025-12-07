@@ -85,4 +85,26 @@ class Notification
         $stmt->bindParam(":user_id", $userId);
         return $stmt->execute();
     }
+
+    // Create a notification for all admins
+    public function createForAdmins($message, $type = 'info', $eventId = null)
+    {
+        // Get all admin IDs directly to avoid circular dependency on User model
+        // This is safer than relying on User model being instantiated elsewhere
+        $query = "SELECT id FROM users WHERE role = 'admin'";
+        if ($this->conn) {
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute();
+            $admins = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+            $success = true;
+            foreach ($admins as $adminId) {
+                if (!$this->create($adminId, $message, $type, $eventId)) {
+                    $success = false;
+                }
+            }
+            return $success;
+        }
+        return false;
+    }
 }

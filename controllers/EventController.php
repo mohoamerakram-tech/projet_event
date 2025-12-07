@@ -304,16 +304,26 @@ class EventController
             // Notify all users about the new event
             require_once __DIR__ . '/../models/User.php';
             $userModel = new User();
-            $notificationModel = new Notification($this->pdo); // Pass PDO connection
+            $notificationModel = new Notification($this->pdo);
 
+            // ADMIN NOTIFICATION
+            try {
+                $notificationModel->createForAdmins(
+                    "New Event Created: <strong>" . htmlspecialchars($titre) . "</strong> has been added.",
+                    "success",
+                    null
+                );
+            } catch (Exception $e) { /* Ignore */
+            }
+
+            // USER NOTIFICATION
             $allUsers = $userModel->getAll();
             foreach ($allUsers as $u) {
-                // Skip if user is the admin who created it? No, notify everyone.
                 $notificationModel->create(
                     $u['id'],
                     "New event added: <strong>" . htmlspecialchars($titre) . "</strong>. Check it out!",
                     "info",
-                    null // We don't have the new event ID easily without modifying model, passing null is fine or we could query lastInsertId but simplistic is better.
+                    null
                 );
             }
 
@@ -440,9 +450,15 @@ class EventController
         require_once __DIR__ . '/../models/Notification.php';
         $notificationModel = new Notification($this->pdo);
 
-        // DEBUG LOGGING
-        file_put_contents(__DIR__ . '/../debug_log.txt', "--- DELETING EVENT $id ---\n", FILE_APPEND);
-        file_put_contents(__DIR__ . '/../debug_log.txt', "Found " . count($participants) . " participants\n", FILE_APPEND);
+        // ADMIN NOTIFICATION: Event Cancelled
+        try {
+            $notificationModel->createForAdmins(
+                "Event Cancelled: <strong>" . htmlspecialchars($eventTitle) . "</strong> has been deleted by an admin.",
+                "danger",
+                null
+            );
+        } catch (Exception $e) { /* Ignore */
+        }
 
         foreach ($participants as $p) {
             if (isset($p['user_id'])) {
@@ -452,16 +468,12 @@ class EventController
                     "danger",
                     null
                 );
-                file_put_contents(__DIR__ . '/../debug_log.txt', "Notified User ID " . $p['user_id'] . " - Status: " . ($status ? 'OK' : 'FAIL') . "\n", FILE_APPEND);
-            } else {
-                file_put_contents(__DIR__ . '/../debug_log.txt', "Skipping participant " . $p['nom_participant'] . " (No User ID)\n", FILE_APPEND);
             }
         }
 
         // Delete the event
         $evenementModel->delete($id);
 
-        // Dynamic redirect based on referer
         $redirectUrl = '../public/index.php?page=admin_dashboard';
         if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
             $redirectUrl = $_SERVER['HTTP_REFERER'];

@@ -478,10 +478,95 @@
                     <input type="text" name="q" id="admin-search-input" placeholder="Search..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>" autocomplete="off">
                 </form>
 
-                <button class="topbar-icon-btn">
-                    <i class="bi bi-bell"></i>
-                    <span class="notification-badge">3</span>
-                </button>
+                <?php
+                // Fetch Notifications
+                $unreadCount = 0;
+                $notifications = [];
+                if (isset($_SESSION['user']['id'])) {
+                    // Ensure $pdo is available
+                    if (!isset($pdo) && file_exists(__DIR__ . '/../../config/db.php')) {
+                        require_once __DIR__ . '/../../config/db.php';
+                        $database = new Database();
+                        $pdo = $database->getConnection();
+                    }
+                    if (isset($pdo)) {
+                        require_once __DIR__ . '/../../models/Notification.php';
+                        $notifModel = new Notification($pdo);
+                        $unreadCount = $notifModel->getUnreadCount($_SESSION['user']['id']);
+                        $notifications = $notifModel->getAllByUserId($_SESSION['user']['id'], 5);
+                    }
+                }
+                ?>
+
+                <div class="dropdown">
+                    <button class="topbar-icon-btn" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-bell"></i>
+                        <?php if ($unreadCount > 0): ?>
+                            <span class="notification-badge"><?= $unreadCount ?></span>
+                        <?php endif; ?>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-0" style="width: 350px; border-radius: 16px; overflow: hidden;">
+                        <li class="p-3 bg-light border-bottom d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0 fw-bold text-dark">Notifications</h6>
+                            <?php if ($unreadCount > 0): ?>
+                                <a href="#" onclick="markAllNotificationsRead(event)" class="small text-decoration-none fw-semibold">Mark all read</a>
+                            <?php endif; ?>
+                        </li>
+                        <div style="max-height: 300px; overflow-y: auto;">
+                            <?php if (empty($notifications)): ?>
+                                <li class="p-4 text-center text-muted">
+                                    <i class="bi bi-bell-slash mb-2 fs-4 d-block opacity-50"></i>
+                                    <small>No notifications</small>
+                                </li>
+                            <?php else: ?>
+                                <?php foreach ($notifications as $notif): ?>
+                                    <li class="border-bottom position-relative hover-bg-light" id="notif-<?= $notif['id'] ?>">
+                                        <div class="d-flex align-items-start gap-3 p-3 text-decoration-none text-dark">
+                                            <div class="flex-shrink-0 mt-1">
+                                                <?php
+                                                $icon = 'bi-info-circle';
+                                                $bgClass = 'bg-primary';
+                                                switch ($notif['type']) {
+                                                    case 'success':
+                                                        $icon = 'bi-check-circle';
+                                                        $bgClass = 'bg-success';
+                                                        break;
+                                                    case 'warning':
+                                                        $icon = 'bi-exclamation-triangle';
+                                                        $bgClass = 'bg-warning';
+                                                        break;
+                                                    case 'danger':
+                                                        $icon = 'bi-x-circle';
+                                                        $bgClass = 'bg-danger';
+                                                        break;
+                                                }
+                                                ?>
+                                                <div class="rounded-circle <?= $bgClass ?> bg-opacity-10 text-center d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                                    <i class="bi <?= $icon ?> <?= str_replace('bg-', 'text-', $bgClass) ?>"></i>
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <p class="mb-1 small lh-sm"><?= htmlspecialchars_decode($notif['message']) ?></p>
+                                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                                    <small class="text-muted" style="font-size: 0.75rem;">
+                                                        <?= date('M d, H:i', strtotime($notif['created_at'])) ?>
+                                                    </small>
+                                                    <?php if (!$notif['is_read']): ?>
+                                                        <button onclick="markNotificationRead(<?= $notif['id'] ?>, event)" class="btn btn-link btn-sm p-0 text-decoration-none text-primary" style="font-size: 0.8rem;">
+                                                            Mark as read
+                                                        </button>
+                                                    <?php else: ?>
+                                                        <small class="text-muted fst-italic" style="font-size: 0.75rem;">Read</small>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
+                    </ul>
+                </div>
 
                 <button class="topbar-btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEventModal">
                     <i class="bi bi-plus-lg"></i>
@@ -776,6 +861,54 @@
 
                     reader.readAsDataURL(input.files[0]);
                 }
+            }
+
+            function markAllNotificationsRead(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                fetch('index.php?page=notification_read_all')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.reload();
+                    }
+                })
+                .catch(err => console.error(err));
+            }
+
+            function markNotificationRead(id, e) {
+                if(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+
+                fetch('index.php?page=notification_read&id=' + id)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Optimistic update
+                        const item = document.getElementById('notif-' + id);
+                        if(item) {
+                            // Find the button and replace with "Read" text
+                            const btn = item.querySelector('button');
+                            if(btn) {
+                                btn.outerHTML = '<small class="text-muted fst-italic" style="font-size: 0.75rem;">Read</small>';
+                            }
+                            // Update badge count
+                            const badges = document.querySelectorAll('.notification-badge');
+                            badges.forEach(b => {
+                                let count = parseInt(b.innerText);
+                                if(count > 0) {
+                                    count--;
+                                    b.innerText = count;
+                                    if(count === 0) b.style.display = 'none';
+                                }
+                            });
+                        }
+                    }
+                })
+                .catch(err => console.error(err));
             }
         </script>
 
