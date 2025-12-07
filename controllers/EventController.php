@@ -1,6 +1,7 @@
 <?php
 // controllers/EventController.php
 require_once __DIR__ . '/../models/Evenement.php';
+require_once __DIR__ . '/../models/Notification.php';
 
 
 class EventController
@@ -293,6 +294,22 @@ class EventController
                 $category_id
             );
 
+            // Notify all users about the new event
+            require_once __DIR__ . '/../models/User.php';
+            $userModel = new User();
+            $notificationModel = new Notification($this->pdo); // Pass PDO connection
+
+            $allUsers = $userModel->getAll();
+            foreach ($allUsers as $u) {
+                // Skip if user is the admin who created it? No, notify everyone.
+                $notificationModel->create(
+                    $u['id'],
+                    "New event added: <strong>" . htmlspecialchars($titre) . "</strong>. Check it out!",
+                    "info",
+                    null // We don't have the new event ID easily without modifying model, passing null is fine or we could query lastInsertId but simplistic is better.
+                );
+            }
+
             header("Location: ../public/index.php?page=admin_dashboard");
             exit();
         }
@@ -356,6 +373,24 @@ class EventController
             }
 
             $evenementModel->update($id, $titre, $description, $date_event, $lieu, $heure, $image_name, $category_id);
+
+            // Notify registered users about the update
+            require_once __DIR__ . '/../models/Inscription.php';
+            $inscriptionModel = new Inscription($this->pdo);
+            $participants = $inscriptionModel->getByEventId($id);
+
+            $notificationModel = new Notification($this->pdo);
+            foreach ($participants as $p) {
+                if (isset($p['user_id'])) {
+                    $notificationModel->create(
+                        $p['user_id'],
+                        "Event Update: <strong>" . htmlspecialchars($titre) . "</strong> details have been changed.",
+                        "warning",
+                        $id
+                    );
+                }
+            }
+
             header("Location: ../public/index.php?page=admin_dashboard");
             exit;
         }
@@ -372,7 +407,35 @@ class EventController
     public function delete($id)
     {
         $evenementModel = new Evenement($this->pdo);
+
+        // Notify participants before deletion
+        require_once __DIR__ . '/../models/Inscription.php';
+        $inscriptionModel = new Inscription($this->pdo);
+        $participants = $inscriptionModel->getByEventId($id);
+
+        // Get event title for message (optional, but nice)
+        $event = $evenementModel->getById($id);
+        $eventTitle = $event ? $event['titre'] : 'Event';
+
+        // Delete the event
         $evenementModel->delete($id);
+
+        // Send notifications (must do BEFORE delete if we want to link event? No, event is gone. Link is null.)
+        // Actually, we should notify BEFORE delete if we want keys to work, but keys are SET NULL on delete.
+        // But the message persists.
+        require_once __DIR__ . '/../models/Notification.php';
+        $notificationModel = new Notification($this->pdo);
+
+        foreach ($participants as $p) {
+            if (isset($p['user_id'])) {
+                $notificationModel->create(
+                    $p['user_id'],
+                    "Event Cancelled: <strong>" . htmlspecialchars($eventTitle) . "</strong> has been cancelled.",
+                    "danger",
+                    null
+                );
+            }
+        }
 
         header("Location: ../public/index.php?page=admin_dashboard");
         exit();

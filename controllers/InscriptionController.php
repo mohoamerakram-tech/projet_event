@@ -27,6 +27,20 @@ class InscriptionController
 
         if ($result) {
             // Success
+            // Notify User
+            require_once __DIR__ . '/../models/Notification.php';
+            $notificationModel = new Notification($this->pdo);
+            $eventModel = new Evenement($this->pdo);
+            $event = $eventModel->getById($eventId);
+            $eventTitle = $event ? $event['titre'] : 'Event';
+
+            $notificationModel->create(
+                $user['id'], // We need user ID in session. If not there, we have a problem. Session usually has id.
+                "Registration Confirmed: You have successfully registered for <strong>" . htmlspecialchars($eventTitle) . "</strong>.",
+                "success",
+                $eventId
+            );
+
             header('Location: index.php?page=user_events&success=registered');
         } else {
             // Already registered or error
@@ -49,6 +63,24 @@ class InscriptionController
         $result = $inscriptionModel->cancel($inscriptionId, $email);
 
         if ($result) {
+            // Notify User
+            require_once __DIR__ . '/../models/Notification.php';
+            $notificationModel = new Notification($this->pdo);
+            // We need event details for the message, but we only have inscriptionId.
+            // Inscription::cancel deleted the row? Yes.
+            // So we should have fetched it before? Or just say "Registration cancelled".
+            // Let's keep it simple.
+
+            // To get user ID, we have $_SESSION['user']['id'].
+            if (isset($_SESSION['user']['id'])) {
+                $notificationModel->create(
+                    $_SESSION['user']['id'],
+                    "Registration Cancelled: You have cancelled your registration.",
+                    "info",
+                    null
+                );
+            }
+
             header('Location: index.php?page=user_events&success=canceled');
         } else {
             header('Location: index.php?page=user_events&error=cancel_failed');

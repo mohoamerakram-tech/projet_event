@@ -6,6 +6,7 @@ require_once __DIR__ . '/../controllers/AuthController.php';
 require_once __DIR__ . '/../controllers/EventController.php';
 require_once __DIR__ . '/../controllers/CategoryController.php';
 require_once __DIR__ . '/../controllers/InscriptionController.php';
+require_once __DIR__ . '/../controllers/NotificationController.php';
 
 // Créer les instances
 require_once __DIR__ . '/../config/db.php'; // contient $pdo
@@ -260,6 +261,20 @@ switch ($page) {
             exit();
         }
         break;
+
+    case "notification_read":
+        // Access via AJAX
+        require_once __DIR__ . '/../controllers/NotificationController.php';
+        $notify = new NotificationController($pdo);
+        $notify->markAsRead();
+        break;
+
+    case "notification_read_all":
+        require_once __DIR__ . '/../controllers/NotificationController.php';
+        $notify = new NotificationController($pdo);
+        $notify->markAllAsRead();
+        break;
+
     case "category_ajax_create":
         $category->addAjax();
         break;

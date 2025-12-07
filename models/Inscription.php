@@ -75,7 +75,7 @@ class Inscription
     public function getByEventId($eventId, $search = null)
     {
         $sql = "
-            SELECT i.*, e.titre as event_title, e.date_event, u.avatar as user_avatar, u.nom as user_name 
+            SELECT i.*, e.titre as event_title, e.date_event, u.avatar as user_avatar, u.nom as user_name, u.id as user_id 
             FROM inscriptions i
             JOIN evenements e ON i.evenement_id = e.id
             LEFT JOIN users u ON i.email_participant = u.email
