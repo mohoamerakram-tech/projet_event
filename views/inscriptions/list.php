@@ -14,6 +14,20 @@
                                 <h4 class="mb-1 fw-bold"><?= htmlspecialchars($eventDetails['titre'] ?? 'Event Details') ?></h4>
                                 <p class="text-muted mb-0 small">Participants List</p>
                             </div>
+                            <?php if (!empty($eventDetails['capacite'])): ?>
+                                <?php
+                                $count = count($inscriptions);
+                                $cap = $eventDetails['capacite'];
+                                $pct = min(100, ($count / $cap) * 100);
+                                $barColor = ($count >= $cap) ? 'bg-danger' : 'bg-primary';
+                                ?>
+                                <div class="ms-4 d-flex align-items-center gap-3">
+                                    <div class="progress" style="width: 120px; height: 8px;">
+                                        <div class="progress-bar <?= $barColor ?>" role="progressbar" style="width: <?= $pct ?>%" aria-valuenow="<?= $count ?>" aria-valuemin="0" aria-valuemax="<?= $cap ?>"></div>
+                                    </div>
+                                    <span class="small fw-bold text-muted"><?= $count ?>/<?= $cap ?></span>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     <?php else: ?>
                         <div>
@@ -75,8 +89,11 @@
                                         <?= date('d M Y', strtotime($stat['date_event'])) ?>
                                     </td>
                                     <td class="px-4 py-3 text-center">
-                                        <span class="badge bg-purple bg-opacity-10 text-purple rounded-pill px-3 py-2 fw-bold" style="color: #7c3aed; background-color: #f3e8ff;">
+                                        <span class="badge bg-purple bg-opacity-10 text-purple rounded-pill px-3 py-2 fw-bold me-2" style="color: #7c3aed; background-color: #f3e8ff;">
                                             <i class="bi bi-people-fill me-1"></i> <?= $stat['total_participants'] ?>
+                                        </span>
+                                        <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2 fw-bold">
+                                            <i class="bi bi-person-check-fill me-1"></i> <?= $stat['capacite'] ? $stat['capacite'] : '∞' ?>
                                         </span>
                                     </td>
                                     <td class="px-4 py-3 text-end">

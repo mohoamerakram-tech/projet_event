@@ -194,6 +194,21 @@
                                 value="<?= htmlspecialchars($evenement['lieu']) ?>" required>
                         </div>
 
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary small text-uppercase d-flex justify-content-between">
+                                Max Participants
+                                <span class="badge bg-primary rounded-pill" id="capacityValueEdit"><?= $evenement['capacite'] ?? 50 ?></span>
+                            </label>
+                            <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3 border">
+                                <i class="bi bi-person text-muted"></i>
+                                <input type="range" class="form-range" name="capacite" min="10" max="1000" step="10"
+                                    value="<?= $evenement['capacite'] ?? 50 ?>"
+                                    id="capacityRangeEdit"
+                                    oninput="document.getElementById('capacityValueEdit').textContent = this.value">
+                                <i class="bi bi-people-fill text-primary"></i>
+                            </div>
+                        </div>
+
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn text-white fw-bold py-2"
                                 style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border: none;">

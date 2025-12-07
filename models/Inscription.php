@@ -53,7 +53,7 @@ class Inscription
     public function getEventStats($search = null)
     {
         $sql = "
-            SELECT e.id, e.titre, e.date_event, e.lieu, e.image, COUNT(i.id) as total_participants
+            SELECT e.id, e.titre, e.date_event, e.lieu, e.image, e.capacite, COUNT(i.id) as total_participants
             FROM evenements e
             LEFT JOIN inscriptions i ON e.id = i.evenement_id
         ";
@@ -65,7 +65,14 @@ class Inscription
             $params[] = "%$search%";
         }
 
-        $sql .= " GROUP BY e.id ORDER BY CASE WHEN e.date_event >= CURDATE() THEN 0 ELSE 1 END ASC, ABS(DATEDIFF(e.date_event, CURDATE())) ASC";
+        $sql .= " GROUP BY e.id ORDER BY 
+        CASE 
+            WHEN e.date_event > CURDATE() THEN 0 
+            WHEN e.date_event = CURDATE() AND e.heure >= CURTIME() THEN 0 
+            ELSE 1 
+        END ASC, 
+        e.date_event ASC, 
+        e.heure ASC";
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);

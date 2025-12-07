@@ -216,17 +216,6 @@ class InscriptionController
                         </td>
                         <td class="px-4 py-3 text-secondary fw-semibold">
                             ' . date('d M Y', strtotime($stat['date_event'])) . '
-                        </td>
-                        <td class="px-4 py-3 text-center">
-                            <span class="badge bg-purple bg-opacity-10 text-purple rounded-pill px-3 py-2 fw-bold" style="color: #7c3aed; background-color: #f3e8ff;">
-                                <i class="bi bi-people-fill me-1"></i> ' . $stat['total_participants'] . '
-                            </span>
-                        </td>
-                        <td class="px-4 py-3 text-end">
-                            <a href="?page=inscriptions_list&event_id=' . $stat['id'] . '" class="btn btn-sm btn-light text-primary fw-bold px-3">
-                                View List <i class="bi bi-arrow-right ms-1"></i>
-                            </a>
-                        </td>
                     </tr>';
                 }
             }

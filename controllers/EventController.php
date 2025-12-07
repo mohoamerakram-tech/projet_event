@@ -262,7 +262,9 @@ class EventController
             $date_event = $_POST['date_event'] ?? '';
             $lieu = trim($_POST['lieu'] ?? '');
             $heure = $_POST['heure'] ?? null;
+            $heure = $_POST['heure'] ?? null;
             $category_id = $_POST['category_id'] ?? null;
+            $capacite = $_POST['capacite'] ?? null;
 
             // Image
             $image_name = null;
@@ -295,7 +297,8 @@ class EventController
                 $lieu,
                 $heure,
                 $image_name,
-                $category_id
+                $category_id,
+                $capacite
             );
 
             // Notify all users about the new event
@@ -361,7 +364,9 @@ class EventController
             $date_event = $_POST['date_event'] ?? '';
             $lieu = $_POST['lieu'] ?? '';
             $heure = $_POST['heure'] ?? null;
+            $heure = $_POST['heure'] ?? null;
             $category_id = $_POST['category_id'] ?? null;
+            $capacite = $_POST['capacite'] ?? null;
 
             // Gestion de l'image
             $image_name = $currentEvent['image'] ?? null; // Garder l'ancienne image par défaut
@@ -381,7 +386,7 @@ class EventController
                 }
             }
 
-            $evenementModel->update($id, $titre, $description, $date_event, $lieu, $heure, $image_name, $category_id);
+            $evenementModel->update($id, $titre, $description, $date_event, $lieu, $heure, $image_name, $category_id, $capacite);
 
             // Notify registered users about the update
             require_once __DIR__ . '/../models/Inscription.php';

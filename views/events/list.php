@@ -281,6 +281,24 @@
                                 value="<?= htmlspecialchars($e['lieu']) ?>" required>
                             </div>
                           </div>
+
+                          <!-- NEW: Capacity Slider (Added correctly) -->
+                          <div class="col-12">
+                            <label class="form-label fw-bold text-secondary small text-uppercase d-flex justify-content-between">
+                              Max Participants
+                              <span class="badge bg-primary rounded-pill" id="capacityValueEdit<?= $e['id'] ?>"><?= $e['capacite'] ?? 50 ?></span>
+                            </label>
+                            <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3 border">
+                              <i class="bi bi-person text-muted"></i>
+                              <input type="range" class="form-range" name="capacite" min="10" max="1000" step="10"
+                                value="<?= $e['capacite'] ?? 50 ?>"
+                                id="capacityRangeEdit<?= $e['id'] ?>"
+                                oninput="document.getElementById('capacityValueEdit<?= $e['id'] ?>').textContent = this.value">
+                              <i class="bi bi-people-fill text-primary"></i>
+                            </div>
+                          </div>
+                          <!-- End Capacity Slider -->
+
                         </div>
                       </div>
                       <div class="modal-footer border-top-0 p-4 bg-light bg-opacity-50">

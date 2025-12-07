@@ -324,6 +324,16 @@ if (session_status() === PHP_SESSION_NONE) {
                                                     </div>
                                                 </div>
 
+                                                <div class="d-flex align-items-center gap-3 mb-4 p-3 rounded-3 bg-light">
+                                                    <div class="rounded-circle bg-white p-2 shadow-sm text-primary">
+                                                        <i class="bi bi-people-fill fs-5"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="fw-bold mb-0">Max Participants</h6>
+                                                        <p class="mb-0 text-muted small"><?= $e['capacite'] ? htmlspecialchars($e['capacite']) . ' seats' : 'Unlimited' ?></p>
+                                                    </div>
+                                                </div>
+
                                                 <?php if (isset($_SESSION['user'])): ?>
                                                     <?php if (isset($registeredEventIds) && in_array($e['id'], $registeredEventIds)): ?>
                                                         <button class="btn btn-secondary w-100 py-3 fw-bold shadow-sm text-white" disabled style="background: #cbd5e1; border: none; opacity: 1; cursor: not-allowed; color: #64748b !important;">
