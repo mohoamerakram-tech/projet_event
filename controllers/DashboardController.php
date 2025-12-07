@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DASHBOARD CONTROLLER
  * ====================
@@ -22,6 +23,12 @@ class DashboardController
         // Check if user is admin
         if (!isset($_SESSION["user"]) || $_SESSION["user"]["role"] !== "admin") {
             header("Location: ?page=login");
+            exit();
+        }
+
+        // Handle Search Redirect (Dashboard doesn't have a list, so redirect to events list)
+        if (isset($_GET['q']) && !empty($_GET['q'])) {
+            header("Location: index.php?page=events_list&q=" . urlencode($_GET['q']));
             exit();
         }
 

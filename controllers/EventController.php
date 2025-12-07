@@ -24,7 +24,9 @@ class EventController
     public function list()
     {
         $evenementModel = new Evenement($this->pdo);
-        $evenements = $evenementModel->getAll();
+        $query = $_GET['q'] ?? null;
+        $evenements = $evenementModel->getAll(false, $query);
+
         require_once __DIR__ . '/../models/Categorie.php';
         $categorieModel = new Categorie($this->pdo);
         $categories = $categorieModel->getAll();
@@ -248,7 +250,8 @@ class EventController
     public function calendar()
     {
         $evenementModel = new Evenement($this->pdo);
-        $evenements = $evenementModel->getAll();
+        $query = $_GET['q'] ?? null;
+        $evenements = $evenementModel->getAll(false, $query);
         require __DIR__ . '/../views/calendar/index.php';
     }
 

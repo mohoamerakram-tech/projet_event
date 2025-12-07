@@ -11,7 +11,7 @@ class Evenement
     }
 
 
-    public function getAll($onlyUpcoming = false)
+    public function getAll($onlyUpcoming = false, $query = null)
     {
         $sql = "
             SELECT e.*, c.nom as category_name, COUNT(i.id) as participant_count
@@ -20,18 +20,37 @@ class Evenement
             LEFT JOIN inscriptions i ON e.id = i.evenement_id
         ";
 
+        $params = [];
+        $whereCli = [];
+
         if ($onlyUpcoming) {
-            $sql .= " WHERE (e.date_event > CURDATE() OR (e.date_event = CURDATE() AND e.heure >= CURTIME())) ";
-            $sql .= " GROUP BY e.id ";
+            $whereCli[] = "(e.date_event > CURDATE() OR (e.date_event = CURDATE() AND e.heure >= CURTIME()))";
+        }
+
+        if (!empty($query)) {
+            $whereCli[] = "(e.titre LIKE ? OR e.description LIKE ? OR e.lieu LIKE ?)";
+            $term = "%$query%";
+            $params[] = $term;
+            $params[] = $term;
+            $params[] = $term;
+        }
+
+        if (!empty($whereCli)) {
+            $sql .= " WHERE " . implode(' AND ', $whereCli);
+        }
+
+        $sql .= " GROUP BY e.id ";
+
+        if ($onlyUpcoming) {
             $sql .= " HAVING (e.capacite IS NULL OR e.capacite = 0 OR participant_count < e.capacite) ";
             $sql .= " ORDER BY e.date_event ASC, e.heure ASC";
         } else {
             // Admin view: Newest added first
-            $sql .= " GROUP BY e.id ";
             $sql .= " ORDER BY e.id DESC";
         }
 
-        $stmt = $this->pdo->query($sql);
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
