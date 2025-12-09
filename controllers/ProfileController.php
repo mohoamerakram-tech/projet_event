@@ -459,4 +459,112 @@ class ProfileController
             exit();
         }
     }
+
+    /**
+     * Update user avatar
+     */
+    public function updateAvatar()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $redirectPage = ($_SESSION["user"]["role"] === "admin") ? "admin_profile" : "user_profile";
+            header("Location: ?page=" . $redirectPage);
+            exit();
+        }
+
+        if (!isset($_SESSION["user"])) {
+            header("Location: ?page=login");
+            exit();
+        }
+
+        $userId = $_SESSION["user"]["id"];
+        $errors = [];
+
+        // Determine redirect page based on role
+        $redirectPage = ($_SESSION["user"]["role"] === "admin") ? "admin_profile" : "user_profile";
+
+        // Check if file was uploaded
+        if (!isset($_FILES['avatar']) || $_FILES['avatar']['error'] === UPLOAD_ERR_NO_FILE) {
+            $_SESSION['profile_errors'] = ["Aucun fichier sélectionné"];
+            header("Location: ?page=" . $redirectPage);
+            exit();
+        }
+
+        $file = $_FILES['avatar'];
+
+        // Validate file
+        if ($file['error'] !== UPLOAD_ERR_OK) {
+            $_SESSION['profile_errors'] = ["Erreur lors de l'upload du fichier"];
+            header("Location: ?page=" . $redirectPage);
+            exit();
+        }
+
+        // Check file size (max 2MB)
+        if ($file['size'] > 2 * 1024 * 1024) {
+            $_SESSION['profile_errors'] = ["Le fichier est trop volumineux (max 2MB)"];
+            header("Location: ?page=" . $redirectPage);
+            exit();
+        }
+
+        // Check file type
+        $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = finfo_file($finfo, $file['tmp_name']);
+        finfo_close($finfo);
+
+        if (!in_array($mimeType, $allowedTypes)) {
+            $_SESSION['profile_errors'] = ["Type de fichier non autorisé. Utilisez JPG, PNG, GIF ou WEBP"];
+            header("Location: ?page=" . $redirectPage);
+            exit();
+        }
+
+        try {
+            // Get current avatar
+            $stmt = $this->pdo->prepare("SELECT avatar FROM users WHERE id = ?");
+            $stmt->execute([$userId]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            $oldAvatar = $user['avatar'] ?? null;
+
+            // Generate unique filename
+            $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $filename = 'avatar_' . $userId . '_' . time() . '.' . $extension;
+            $uploadDir = __DIR__ . '/../public/uploads/avatars/';
+
+            // Create directory if it doesn't exist
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+
+            $uploadPath = $uploadDir . $filename;
+
+            // Move uploaded file
+            if (!move_uploaded_file($file['tmp_name'], $uploadPath)) {
+                $_SESSION['profile_errors'] = ["Erreur lors de l'enregistrement du fichier"];
+                header("Location: ?page=" . $redirectPage);
+                exit();
+            }
+
+            // Update database
+            $avatarPath = 'uploads/avatars/' . $filename;
+            $stmt = $this->pdo->prepare("UPDATE users SET avatar = ? WHERE id = ?");
+            $stmt->execute([$avatarPath, $userId]);
+
+            // Update session
+            $_SESSION["user"]["avatar"] = $avatarPath;
+
+            // Delete old avatar if exists
+            if ($oldAvatar && file_exists(__DIR__ . '/../public/' . $oldAvatar)) {
+                unlink(__DIR__ . '/../public/' . $oldAvatar);
+            }
+
+            $_SESSION['profile_success'] = "Photo de profil mise à jour avec succès";
+            header("Location: ?page=" . $redirectPage);
+            exit();
+
+        } catch (Exception $e) {
+            error_log("Avatar upload error: " . $e->getMessage());
+            $_SESSION['profile_errors'] = ["Erreur lors de la mise à jour de la photo"];
+            header("Location: ?page=" . $redirectPage);
+            exit();
+        }
+    }
 }
