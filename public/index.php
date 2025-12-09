@@ -170,6 +170,30 @@ switch ($page) {
         $dashboard->getTopEvents();
         break;
 
+    // --------------------------
+    //  ADMIN PROFILE
+    // --------------------------
+    case "admin_profile":
+        require_login();
+        require_once __DIR__ . '/../controllers/ProfileController.php';
+        $profile = new ProfileController($pdo);
+        $profile->adminProfile();
+        break;
+
+    case "admin_profile_update":
+        require_login();
+        require_once __DIR__ . '/../controllers/ProfileController.php';
+        $profile = new ProfileController($pdo);
+        $profile->updateProfile();
+        break;
+
+    case "admin_password_change":
+        require_login();
+        require_once __DIR__ . '/../controllers/ProfileController.php';
+        $profile = new ProfileController($pdo);
+        $profile->changePassword();
+        break;
+
     case "events_list":
         require_login();
         $event->list();
@@ -294,6 +318,30 @@ switch ($page) {
         } else {
             header('Location: ?page=home');
         }
+        break;
+
+    // --------------------------
+    //  USER PROFILE
+    // --------------------------
+    case "user_profile":
+        require_login();
+        require_once __DIR__ . '/../controllers/ProfileController.php';
+        $profile = new ProfileController($pdo);
+        $profile->userProfile();
+        break;
+
+    case "user_profile_update":
+        require_login();
+        require_once __DIR__ . '/../controllers/ProfileController.php';
+        $profile = new ProfileController($pdo);
+        $profile->updateUserProfile();
+        break;
+
+    case "user_password_change":
+        require_login();
+        require_once __DIR__ . '/../controllers/ProfileController.php';
+        $profile = new ProfileController($pdo);
+        $profile->changePassword();
         break;
 
     case "cancel_registration":
