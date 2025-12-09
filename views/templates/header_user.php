@@ -15,11 +15,11 @@
     <link rel="stylesheet" href="css/glass-theme.css">
 
     <script>
-            function markAllNotificationsRead(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                fetch('index.php?page=notification_read_all')
+        function markAllNotificationsRead(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            fetch('index.php?page=notification_read_all')
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
@@ -27,41 +27,41 @@
                     }
                 })
                 .catch(err => console.error(err));
+        }
+
+        function markNotificationRead(id, e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
             }
 
-            function markNotificationRead(id, e) {
-                if(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-
-                fetch('index.php?page=notification_read&id=' + id)
+            fetch('index.php?page=notification_read&id=' + id)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         // Optimistic update
                         const item = document.getElementById('notif-' + id);
-                        if(item) {
+                        if (item) {
                             // Find the button and replace with "Read" text
                             const btn = item.querySelector('button');
-                            if(btn) {
+                            if (btn) {
                                 btn.outerHTML = '<small class="text-muted fst-italic" style="font-size: 0.75rem;">Read</small>';
                             }
                             // Update badge count
                             const badges = document.querySelectorAll('.notification-badge');
                             badges.forEach(b => {
                                 let count = parseInt(b.innerText);
-                                if(count > 0) {
+                                if (count > 0) {
                                     count--;
                                     b.innerText = count;
-                                    if(count === 0) b.style.display = 'none';
+                                    if (count === 0) b.style.display = 'none';
                                 }
                             });
                         }
                     }
                 })
                 .catch(err => console.error(err));
-            }
+        }
     </script>
     <style>
         .notification-badge {
@@ -149,10 +149,10 @@
                         if (isset($pdo)) {
                             require_once __DIR__ . '/../../models/Notification.php';
                             require_once __DIR__ . '/../../models/Inscription.php';
-                            
+
                             $notifModel = new Notification($pdo);
                             $inscriptionModel = new Inscription($pdo);
-                            
+
                             // Check for reminders (events starting in < 1 hour)
                             // Ideally this should be a background job, but for this setup we do it on load
                             if (isset($_SESSION['user']['id'])) {
@@ -180,17 +180,21 @@
                         }
                         ?>
                         <div class="dropdown">
-                            <button class="btn btn-light rounded-circle shadow-sm position-relative d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;" data-bs-toggle="dropdown" aria-expanded="false">
+                            <button
+                                class="btn btn-light rounded-circle shadow-sm position-relative d-flex align-items-center justify-content-center"
+                                style="width: 42px; height: 42px;" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="bi bi-bell text-primary"></i>
                                 <?php if ($unreadCount > 0): ?>
                                     <span class="notification-badge"><?= $unreadCount ?></span>
                                 <?php endif; ?>
                             </button>
-                            <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-0" style="width: 350px; border-radius: 16px; overflow: hidden;">
+                            <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-0"
+                                style="width: 350px; border-radius: 16px; overflow: hidden;">
                                 <li class="p-3 bg-light border-bottom d-flex justify-content-between align-items-center">
                                     <h6 class="mb-0 fw-bold text-dark">Notifications</h6>
                                     <?php if ($unreadCount > 0): ?>
-                                        <a href="#" onclick="markAllNotificationsRead(event)" class="small text-decoration-none fw-semibold">Mark all read</a>
+                                        <a href="#" onclick="markAllNotificationsRead(event)"
+                                            class="small text-decoration-none fw-semibold">Mark all read</a>
                                     <?php endif; ?>
                                 </li>
                                 <div style="max-height: 300px; overflow-y: auto;">
@@ -201,7 +205,8 @@
                                         </li>
                                     <?php else: ?>
                                         <?php foreach ($notifications as $notif): ?>
-                                            <li class="border-bottom position-relative hover-bg-light" id="notif-<?= $notif['id'] ?>">
+                                            <li class="border-bottom position-relative hover-bg-light"
+                                                id="notif-<?= $notif['id'] ?>">
                                                 <div class="d-flex align-items-start gap-3 p-3 text-decoration-none text-dark">
                                                     <div class="flex-shrink-0 mt-1">
                                                         <?php
@@ -223,22 +228,28 @@
                                                                 break;
                                                         }
                                                         ?>
-                                                        <div class="rounded-circle <?= $bgClass ?> bg-opacity-10 text-center d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
-                                                            <i class="bi <?= $icon ?> <?= str_replace('bg-', 'text-', $bgClass) ?>"></i>
+                                                        <div class="rounded-circle <?= $bgClass ?> bg-opacity-10 text-center d-flex align-items-center justify-content-center"
+                                                            style="width: 36px; height: 36px;">
+                                                            <i
+                                                                class="bi <?= $icon ?> <?= str_replace('bg-', 'text-', $bgClass) ?>"></i>
                                                         </div>
                                                     </div>
                                                     <div class="flex-grow-1">
-                                                        <p class="mb-1 small lh-sm"><?= htmlspecialchars_decode($notif['message']) ?></p>
+                                                        <p class="mb-1 small lh-sm">
+                                                            <?= htmlspecialchars_decode($notif['message']) ?></p>
                                                         <div class="d-flex justify-content-between align-items-center mt-2">
                                                             <small class="text-muted" style="font-size: 0.75rem;">
                                                                 <?= date('M d, H:i', strtotime($notif['created_at'])) ?>
                                                             </small>
                                                             <?php if (!$notif['is_read']): ?>
-                                                                <button onclick="markNotificationRead(<?= $notif['id'] ?>, event)" class="btn btn-link btn-sm p-0 text-decoration-none text-primary" style="font-size: 0.8rem;">
+                                                                <button onclick="markNotificationRead(<?= $notif['id'] ?>, event)"
+                                                                    class="btn btn-link btn-sm p-0 text-decoration-none text-primary"
+                                                                    style="font-size: 0.8rem;">
                                                                     Mark as read
                                                                 </button>
                                                             <?php else: ?>
-                                                                <small class="text-muted fst-italic" style="font-size: 0.75rem;">Read</small>
+                                                                <small class="text-muted fst-italic"
+                                                                    style="font-size: 0.75rem;">Read</small>
                                                             <?php endif; ?>
                                                         </div>
                                                     </div>
@@ -253,9 +264,11 @@
                         <div class="dropdown">
                             <a href="#" class="d-flex align-items-center gap-2 text-decoration-none dropdown-toggle"
                                 data-bs-toggle="dropdown">
-                                <div class="user-avatar-small" style="<?= !empty($_SESSION['user']['avatar']) ? 'background: none;' : '' ?>">
+                                <div class="user-avatar-small"
+                                    style="<?= !empty($_SESSION['user']['avatar']) ? 'background: none;' : '' ?>">
                                     <?php if (!empty($_SESSION['user']['avatar'])): ?>
-                                        <img src="<?= htmlspecialchars($_SESSION['user']['avatar']) ?>" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                                        <img src="<?= htmlspecialchars($_SESSION['user']['avatar']) ?>" alt="Avatar"
+                                            style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
                                     <?php else: ?>
                                         <?= strtoupper(substr($_SESSION["user"]["nom"] ?? 'U', 0, 1)) ?>
                                     <?php endif; ?>
@@ -266,10 +279,9 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg rounded-4 p-2"
                                 style="min-width: 200px;">
-                                <li><a class="dropdown-item rounded-3 mb-1" href="#"><i class="bi bi-person me-2"></i> Mon
+                                <li><a class="dropdown-item rounded-3 mb-1" href="index.php?page=user_profile"><i
+                                            class="bi bi-person me-2"></i> Mon
                                         Profil</a></li>
-                                <li><a class="dropdown-item rounded-3 mb-1" href="#"><i class="bi bi-gear me-2"></i>
-                                        Paramètres</a></li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>

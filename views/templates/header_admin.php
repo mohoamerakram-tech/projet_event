@@ -428,9 +428,10 @@
 
             <div class="nav-label" style="margin-top: 24px;">Administration</div>
             <div class="nav-item">
-                <a href="#" class="nav-link">
-                    <i class="bi bi-gear-fill"></i>
-                    <span>Paramètres</span>
+                <a href="?page=admin_profile"
+                    class="nav-link <?= (isset($_GET['page']) && $_GET['page'] == 'admin_profile') ? 'active' : '' ?>">
+                    <i class="bi bi-person-circle"></i>
+                    <span>Mon Profil</span>
                 </a>
             </div>
             <div class="nav-item">
@@ -442,17 +443,19 @@
         </nav>
 
         <div class="sidebar-user">
-            <a href="#" class="user-profile">
+            <a href="?page=admin_profile" class="user-profile">
                 <div class="user-avatar" style="<?= !empty($_SESSION['user']['avatar']) ? 'background: none;' : '' ?>">
                     <?php if (!empty($_SESSION['user']['avatar'])): ?>
-                        <img src="<?= htmlspecialchars($_SESSION['user']['avatar']) ?>" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 10px;">
+                        <img src="<?= htmlspecialchars($_SESSION['user']['avatar']) ?>" alt="Avatar"
+                            style="width: 100%; height: 100%; object-fit: cover; border-radius: 10px;">
                     <?php else: ?>
                         <?= strtoupper(substr($_SESSION['user']['nom'] ?? 'A', 0, 1)) ?>
                     <?php endif; ?>
                 </div>
                 <div class="user-info">
                     <h6><?= htmlspecialchars($_SESSION['user']['prenom'] ?? 'Admin') ?>
-                        <?= htmlspecialchars($_SESSION['user']['nom'] ?? 'User') ?></h6>
+                        <?= htmlspecialchars($_SESSION['user']['nom'] ?? 'User') ?>
+                    </h6>
                     <span>Administrateur</span>
                 </div>
             </a>
@@ -470,12 +473,14 @@
 
             <div class="topbar-actions">
                 <form class="topbar-search" method="GET" action="index.php">
-                    <input type="hidden" name="page" value="<?= htmlspecialchars($_GET['page'] ?? 'admin_dashboard') ?>">
-                    <?php if(isset($_GET['event_id'])): ?>
+                    <input type="hidden" name="page"
+                        value="<?= htmlspecialchars($_GET['page'] ?? 'admin_dashboard') ?>">
+                    <?php if (isset($_GET['event_id'])): ?>
                         <input type="hidden" name="event_id" value="<?= htmlspecialchars($_GET['event_id']) ?>">
                     <?php endif; ?>
                     <i class="bi bi-search"></i>
-                    <input type="text" name="q" id="admin-search-input" placeholder="Search..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>" autocomplete="off">
+                    <input type="text" name="q" id="admin-search-input" placeholder="Search..."
+                        value="<?= htmlspecialchars($_GET['q'] ?? '') ?>" autocomplete="off">
                 </form>
 
                 <?php
@@ -505,11 +510,13 @@
                             <span class="notification-badge"><?= $unreadCount ?></span>
                         <?php endif; ?>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-0" style="width: 350px; border-radius: 16px; overflow: hidden;">
+                    <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-0"
+                        style="width: 350px; border-radius: 16px; overflow: hidden;">
                         <li class="p-3 bg-light border-bottom d-flex justify-content-between align-items-center">
                             <h6 class="mb-0 fw-bold text-dark">Notifications</h6>
                             <?php if ($unreadCount > 0): ?>
-                                <a href="#" onclick="markAllNotificationsRead(event)" class="small text-decoration-none fw-semibold">Mark all read</a>
+                                <a href="#" onclick="markAllNotificationsRead(event)"
+                                    class="small text-decoration-none fw-semibold">Mark all read</a>
                             <?php endif; ?>
                         </li>
                         <div style="max-height: 300px; overflow-y: auto;">
@@ -541,22 +548,28 @@
                                                         break;
                                                 }
                                                 ?>
-                                                <div class="rounded-circle <?= $bgClass ?> bg-opacity-10 text-center d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                                <div class="rounded-circle <?= $bgClass ?> bg-opacity-10 text-center d-flex align-items-center justify-content-center"
+                                                    style="width: 36px; height: 36px;">
                                                     <i class="bi <?= $icon ?> <?= str_replace('bg-', 'text-', $bgClass) ?>"></i>
                                                 </div>
                                             </div>
                                             <div class="flex-grow-1">
-                                                <p class="mb-1 small lh-sm"><?= htmlspecialchars_decode($notif['message']) ?></p>
+                                                <p class="mb-1 small lh-sm">
+                                                    <?= htmlspecialchars_decode($notif['message']) ?>
+                                                </p>
                                                 <div class="d-flex justify-content-between align-items-center mt-2">
                                                     <small class="text-muted" style="font-size: 0.75rem;">
                                                         <?= date('M d, H:i', strtotime($notif['created_at'])) ?>
                                                     </small>
                                                     <?php if (!$notif['is_read']): ?>
-                                                        <button onclick="markNotificationRead(<?= $notif['id'] ?>, event)" class="btn btn-link btn-sm p-0 text-decoration-none text-primary" style="font-size: 0.8rem;">
+                                                        <button onclick="markNotificationRead(<?= $notif['id'] ?>, event)"
+                                                            class="btn btn-link btn-sm p-0 text-decoration-none text-primary"
+                                                            style="font-size: 0.8rem;">
                                                             Mark as read
                                                         </button>
                                                     <?php else: ?>
-                                                        <small class="text-muted fst-italic" style="font-size: 0.75rem;">Read</small>
+                                                        <small class="text-muted fst-italic"
+                                                            style="font-size: 0.75rem;">Read</small>
                                                     <?php endif; ?>
                                                 </div>
                                             </div>
@@ -588,8 +601,10 @@
                                 <i class="bi bi-plus-lg fs-4"></i>
                             </div>
                             <div>
-                                <h5 class="modal-title fw-bold mb-0" id="addEventModalLabel">New Event</h5>
-                                <p class="mb-0 small opacity-75">Create a new event for your community</p>
+                                <h5 class="modal-title fw-bold mb-0" id="addEventModalLabel">New Event
+                                </h5>
+                                <p class="mb-0 small opacity-75">Create a new event for your community
+                                </p>
                             </div>
                         </div>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -612,15 +627,18 @@
                                             <img id="preview-add-global" src="" alt="Preview"
                                                 class="rounded-3 shadow-sm"
                                                 style="max-height: 200px; object-fit: cover;">
-                                            <div class="mt-2 text-primary small fw-semibold">Click to change image</div>
+                                            <div class="mt-2 text-primary small fw-semibold">Click to
+                                                change image</div>
                                         </div>
                                         <div id="upload-placeholder-add-global">
                                             <div class="mb-3">
                                                 <i class="bi bi-cloud-arrow-up text-primary"
                                                     style="font-size: 3rem; opacity: 0.5;"></i>
                                             </div>
-                                            <h6 class="fw-bold text-dark">Drop your image here, or browse</h6>
-                                            <p class="text-muted small mb-0">Supports: JPG, PNG, WEBP</p>
+                                            <h6 class="fw-bold text-dark">Drop your image here, or
+                                                browse</h6>
+                                            <p class="text-muted small mb-0">Supports: JPG, PNG, WEBP
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -639,125 +657,131 @@
                                 </div>
 
                                 <div class="col-12">
-                                    <label class="form-label fw-bold text-secondary small text-uppercase">Category</label>
-                                        <input type="hidden" name="category_id" id="selectedCategoryInput" required>
-                                        
-                                        <!-- Search Filter & Quick Add -->
-                                        <div class="mb-3">
-                                            <div class="d-flex gap-2">
-                                                <div class="input-group input-group-sm flex-grow-1">
-                                                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-search"></i></span>
-                                                    <input type="text" id="categorySearchInput" class="form-control bg-light border-start-0" 
-                                                           placeholder="Filter categories..." 
-                                                           onkeyup="filterCategories()">
-                                                </div>
-                                                <button type="button" class="btn btn-sm btn-outline-success" onclick="toggleAddCategory()">
-                                                    <i class="bi bi-plus-lg"></i>
-                                                </button>
+                                    <label
+                                        class="form-label fw-bold text-secondary small text-uppercase">Category</label>
+                                    <input type="hidden" name="category_id" id="selectedCategoryInput" required>
+
+                                    <!-- Search Filter & Quick Add -->
+                                    <div class="mb-3">
+                                        <div class="d-flex gap-2">
+                                            <div class="input-group input-group-sm flex-grow-1">
+                                                <span class="input-group-text bg-light border-end-0"><i
+                                                        class="bi bi-search"></i></span>
+                                                <input type="text" id="categorySearchInput"
+                                                    class="form-control bg-light border-start-0"
+                                                    placeholder="Filter categories..." onkeyup="filterCategories()">
                                             </div>
-                                            
-                                            <!-- Quick Add Form -->
-                                            <div id="addCategoryForm" class="mt-2 d-none">
-                                                <div class="input-group input-group-sm">
-                                                    <input type="text" id="newCategoryName" class="form-control" placeholder="New category name...">
-                                                    <button type="button" class="btn btn-success" onclick="createNewCategory()">Save</button>
-                                                </div>
-                                            </div>
+                                            <button type="button" class="btn btn-sm btn-outline-success"
+                                                onclick="toggleAddCategory()">
+                                                <i class="bi bi-plus-lg"></i>
+                                            </button>
                                         </div>
 
-                                        <div class="d-flex flex-wrap gap-2" id="categoryTagsContainer" style="max-height: 150px; overflow-y: auto;">
-                                            <?php
-                                            if (!isset($categories)) {
-                                                if (isset($pdo)) {
-                                                    require_once __DIR__ . '/../../models/Categorie.php';
-                                                    $catModel = new Categorie($pdo);
-                                                    $categories = $catModel->getAll();
-                                                }
+                                        <!-- Quick Add Form -->
+                                        <div id="addCategoryForm" class="mt-2 d-none">
+                                            <div class="input-group input-group-sm">
+                                                <input type="text" id="newCategoryName" class="form-control"
+                                                    placeholder="New category name...">
+                                                <button type="button" class="btn btn-success"
+                                                    onclick="createNewCategory()">Save</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex flex-wrap gap-2" id="categoryTagsContainer"
+                                        style="max-height: 150px; overflow-y: auto;">
+                                        <?php
+                                        if (!isset($categories)) {
+                                            if (isset($pdo)) {
+                                                require_once __DIR__ . '/../../models/Categorie.php';
+                                                $catModel = new Categorie($pdo);
+                                                $categories = $catModel->getAll();
                                             }
-                                            
-                                            if (isset($categories)) {
-                                                foreach ($categories as $cat) {
-                                                    echo '<button type="button" class="btn btn-outline-primary rounded-pill btn-sm px-3 category-tag" 
+                                        }
+
+                                        if (isset($categories)) {
+                                            foreach ($categories as $cat) {
+                                                echo '<button type="button" class="btn btn-outline-primary rounded-pill btn-sm px-3 category-tag" 
                                                             data-id="' . $cat['id'] . '"
-                                                            onclick="selectCategory(this, ' . $cat['id'] . ')">' . 
-                                                            htmlspecialchars($cat['nom']) . 
-                                                          '</button>';
+                                                            onclick="selectCategory(this, ' . $cat['id'] . ')">' .
+                                                    htmlspecialchars($cat['nom']) .
+                                                    '</button>';
+                                            }
+                                        }
+                                        ?>
+                                    </div>
+                                    <script>
+                                        function filterCategories() {
+                                            let input = document.getElementById('categorySearchInput');
+                                            let filter = input.value.toLowerCase();
+                                            let tags = document.querySelectorAll('.category-tag');
+
+                                            tags.forEach(tag => {
+                                                let text = tag.textContent || tag.innerText;
+                                                if (text.toLowerCase().indexOf(filter) > -1) {
+                                                    tag.style.display = "";
+                                                } else {
+                                                    tag.style.display = "none";
                                                 }
+                                            });
+                                        }
+
+                                        function selectCategory(btn, id) {
+                                            // Update hidden input
+                                            document.getElementById('selectedCategoryInput').value = id;
+
+                                            // Visual update
+                                            document.querySelectorAll('.category-tag').forEach(b => {
+                                                b.classList.remove('active', 'bg-primary', 'text-white');
+                                                b.classList.add('btn-outline-primary');
+                                            });
+
+                                            btn.classList.remove('btn-outline-primary');
+                                            btn.classList.add('active', 'bg-primary', 'text-white');
+                                        }
+
+                                        function toggleAddCategory() {
+                                            let form = document.getElementById('addCategoryForm');
+                                            form.classList.toggle('d-none');
+                                            if (!form.classList.contains('d-none')) {
+                                                document.getElementById('newCategoryName').focus();
                                             }
-                                            ?>
-                                        </div>
-                                        <script>
-                                            function filterCategories() {
-                                                let input = document.getElementById('categorySearchInput');
-                                                let filter = input.value.toLowerCase();
-                                                let tags = document.querySelectorAll('.category-tag');
+                                        }
 
-                                                tags.forEach(tag => {
-                                                    let text = tag.textContent || tag.innerText;
-                                                    if (text.toLowerCase().indexOf(filter) > -1) {
-                                                        tag.style.display = "";
-                                                    } else {
-                                                        tag.style.display = "none";
-                                                    }
-                                                });
-                                            }
+                                        function createNewCategory() {
+                                            let nameInput = document.getElementById('newCategoryName');
+                                            let name = nameInput.value.trim();
+                                            if (!name) return;
 
-                                            function selectCategory(btn, id) {
-                                                // Update hidden input
-                                                document.getElementById('selectedCategoryInput').value = id;
-                                                
-                                                // Visual update
-                                                document.querySelectorAll('.category-tag').forEach(b => {
-                                                    b.classList.remove('active', 'bg-primary', 'text-white');
-                                                    b.classList.add('btn-outline-primary');
-                                                });
-                                                
-                                                btn.classList.remove('btn-outline-primary');
-                                                btn.classList.add('active', 'bg-primary', 'text-white');
-                                            }
-
-                                            function toggleAddCategory() {
-                                                let form = document.getElementById('addCategoryForm');
-                                                form.classList.toggle('d-none');
-                                                if(!form.classList.contains('d-none')) {
-                                                    document.getElementById('newCategoryName').focus();
-                                                }
-                                            }
-
-                                            function createNewCategory() {
-                                                let nameInput = document.getElementById('newCategoryName');
-                                                let name = nameInput.value.trim();
-                                                if(!name) return;
-
-                                                fetch('?page=category_ajax_create', {
-                                                    method: 'POST',
-                                                    headers: {
-                                                        'Content-Type': 'application/json'
-                                                    },
-                                                    body: JSON.stringify({ nom: name })
-                                                })
+                                            fetch('?page=category_ajax_create', {
+                                                method: 'POST',
+                                                headers: {
+                                                    'Content-Type': 'application/json'
+                                                },
+                                                body: JSON.stringify({ nom: name })
+                                            })
                                                 .then(response => response.json())
                                                 .then(data => {
-                                                    if(data.success) {
+                                                    if (data.success) {
                                                         // Create new button
                                                         let container = document.getElementById('categoryTagsContainer');
                                                         let btn = document.createElement('button');
                                                         btn.type = 'button';
                                                         btn.className = 'btn btn-outline-primary rounded-pill btn-sm px-3 category-tag';
                                                         btn.setAttribute('data-id', data.id);
-                                                        btn.onclick = function() { selectCategory(this, data.id); };
+                                                        btn.onclick = function () { selectCategory(this, data.id); };
                                                         btn.innerText = data.nom;
-                                                        
+
                                                         // Add to container
                                                         container.appendChild(btn);
-                                                        
+
                                                         // Select it
                                                         selectCategory(btn, data.id);
-                                                        
+
                                                         // Clean up
                                                         nameInput.value = '';
                                                         toggleAddCategory();
-                                                        
+
                                                         // Scroll to bottom
                                                         container.scrollTop = container.scrollHeight;
                                                     } else {
@@ -765,8 +789,8 @@
                                                     }
                                                 })
                                                 .catch(err => console.error(err));
-                                            }
-                                        </script>
+                                        }
+                                    </script>
                                 </div>
 
                                 <div class="col-md-6">
@@ -818,13 +842,16 @@
                                 </div>
 
                                 <div class="col-12">
-                                    <label class="form-label fw-bold text-secondary small text-uppercase d-flex justify-content-between">
+                                    <label
+                                        class="form-label fw-bold text-secondary small text-uppercase d-flex justify-content-between">
                                         Max Participants
                                         <span class="badge bg-primary rounded-pill" id="capacityValue">50</span>
                                     </label>
                                     <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3 border">
                                         <i class="bi bi-person text-muted"></i>
-                                        <input type="range" class="form-range" name="capacite" min="10" max="1000" step="10" value="50" id="capacityRange" oninput="document.getElementById('capacityValue').textContent = this.value">
+                                        <input type="range" class="form-range" name="capacite" min="10" max="1000"
+                                            step="10" value="50" id="capacityRange"
+                                            oninput="document.getElementById('capacityValue').textContent = this.value">
                                         <i class="bi bi-people-fill text-primary"></i>
                                     </div>
                                 </div>
@@ -866,49 +893,49 @@
             function markAllNotificationsRead(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                
+
                 fetch('index.php?page=notification_read_all')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        window.location.reload();
-                    }
-                })
-                .catch(err => console.error(err));
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.location.reload();
+                        }
+                    })
+                    .catch(err => console.error(err));
             }
 
             function markNotificationRead(id, e) {
-                if(e) {
+                if (e) {
                     e.preventDefault();
                     e.stopPropagation();
                 }
 
                 fetch('index.php?page=notification_read&id=' + id)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Optimistic update
-                        const item = document.getElementById('notif-' + id);
-                        if(item) {
-                            // Find the button and replace with "Read" text
-                            const btn = item.querySelector('button');
-                            if(btn) {
-                                btn.outerHTML = '<small class="text-muted fst-italic" style="font-size: 0.75rem;">Read</small>';
-                            }
-                            // Update badge count
-                            const badges = document.querySelectorAll('.notification-badge');
-                            badges.forEach(b => {
-                                let count = parseInt(b.innerText);
-                                if(count > 0) {
-                                    count--;
-                                    b.innerText = count;
-                                    if(count === 0) b.style.display = 'none';
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Optimistic update
+                            const item = document.getElementById('notif-' + id);
+                            if (item) {
+                                // Find the button and replace with "Read" text
+                                const btn = item.querySelector('button');
+                                if (btn) {
+                                    btn.outerHTML = '<small class="text-muted fst-italic" style="font-size: 0.75rem;">Read</small>';
                                 }
-                            });
+                                // Update badge count
+                                const badges = document.querySelectorAll('.notification-badge');
+                                badges.forEach(b => {
+                                    let count = parseInt(b.innerText);
+                                    if (count > 0) {
+                                        count--;
+                                        b.innerText = count;
+                                        if (count === 0) b.style.display = 'none';
+                                    }
+                                });
+                            }
                         }
-                    }
-                })
-                .catch(err => console.error(err));
+                    })
+                    .catch(err => console.error(err));
             }
         </script>
 
