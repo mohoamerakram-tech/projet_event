@@ -165,11 +165,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
     // Inject Event Data for PDF
-    const eventTitle = "<?= htmlspecialchars($eventDetails['titre'] ?? 'Event') ?>";
+    const eventTitle = "<?= isset($eventDetails['titre']) ? htmlspecialchars($eventDetails['titre']) : 'Event' ?>";
     const eventDate = "<?= isset($eventDetails['date_event']) ? date('d M Y', strtotime($eventDetails['date_event'])) : '' ?>";
-    const eventLocation = "<?= htmlspecialchars($eventDetails['lieu'] ?? '') ?>";
+    const eventLocation = "<?= isset($eventDetails['lieu']) ? htmlspecialchars($eventDetails['lieu']) : '' ?>";
     const eventImage = "<?= !empty($eventDetails['image']) ? 'uploads/' . htmlspecialchars($eventDetails['image']) : '' ?>";
-    const totalParticipants = "<?= count($inscriptions) ?>";
+    const totalParticipants = "<?= isset($inscriptions) ? count($inscriptions) : 0 ?>";
 
     function downloadPDF() {
         const urlParams = new URLSearchParams(window.location.search);

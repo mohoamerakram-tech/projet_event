@@ -76,7 +76,6 @@ class ProfileController
             // Upcoming events
             $stmt = $this->pdo->query("SELECT COUNT(*) as total FROM evenements WHERE date_event > CURDATE()");
             $stats['upcoming_events'] = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
-
         } catch (Exception $e) {
             error_log("Stats error: " . $e->getMessage());
         }
@@ -108,7 +107,6 @@ class ProfileController
                 LIMIT 5
             ");
             $activity = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
         } catch (Exception $e) {
             error_log("Activity error: " . $e->getMessage());
         }
@@ -172,10 +170,18 @@ class ProfileController
             $_SESSION["user"]["nom"] = $nom;
             $_SESSION["user"]["email"] = $email;
 
+            // Notify Admin
+            require_once __DIR__ . '/../models/Notification.php';
+            $notificationModel = new Notification($this->pdo);
+            $notificationModel->create(
+                $userId,
+                "Profile Updated: Your personal information has been successfully updated.",
+                "success"
+            );
+
             $_SESSION['profile_success'] = "Profil mis à jour avec succès";
             header("Location: ?page=admin_profile");
             exit();
-
         } catch (Exception $e) {
             error_log("Update profile error: " . $e->getMessage());
             $_SESSION['profile_errors'] = ["Erreur lors de la mise à jour"];
@@ -248,10 +254,19 @@ class ProfileController
             $stmt = $this->pdo->prepare("UPDATE users SET mot_de_passe = ? WHERE id = ?");
             $stmt->execute([$hashedPassword, $userId]);
 
+            // Notify User/Admin
+            require_once __DIR__ . '/../models/Notification.php';
+            $notificationModel = new Notification($this->pdo);
+            $notificationModel->create(
+                $userId,
+                "Security Alert: Your password was changed successfully.",
+                "warning",
+                null
+            );
+
             $_SESSION['password_success'] = "Mot de passe modifié avec succès";
             header("Location: ?page=" . $redirectPage);
             exit();
-
         } catch (Exception $e) {
             error_log("Change password error: " . $e->getMessage());
             $_SESSION['password_errors'] = ["Erreur lors de la modification"];
@@ -340,7 +355,6 @@ class ProfileController
             ");
             $stmt->execute([$userEmail]);
             $stats['past_events'] = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
-
         } catch (Exception $e) {
             error_log("User stats error: " . $e->getMessage());
         }
@@ -384,7 +398,6 @@ class ProfileController
             ");
             $stmt->execute([$userEmail]);
             $registrations = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
         } catch (Exception $e) {
             error_log("User registrations error: " . $e->getMessage());
         }
@@ -448,10 +461,18 @@ class ProfileController
             $_SESSION["user"]["nom"] = $nom;
             $_SESSION["user"]["email"] = $email;
 
+            // Notify User
+            require_once __DIR__ . '/../models/Notification.php';
+            $notificationModel = new Notification($this->pdo);
+            $notificationModel->create(
+                $userId,
+                "Profile Updated: Your personal information has been successfully updated.",
+                "success"
+            );
+
             $_SESSION['profile_success'] = "Profil mis à jour avec succès";
             header("Location: ?page=user_profile");
             exit();
-
         } catch (Exception $e) {
             error_log("Update user profile error: " . $e->getMessage());
             $_SESSION['profile_errors'] = ["Erreur lors de la mise à jour"];
