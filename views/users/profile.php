@@ -24,9 +24,25 @@ $pageSubtitle = "Gérer vos informations et inscriptions";
         <!-- Profile Header -->
         <div class="profile-header-card fade-in">
             <div class="profile-avatar-section">
-                <div class="profile-avatar" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                    <?= strtoupper(substr($user['nom'] ?? 'U', 0, 1)) ?>
+                <div class="profile-avatar"
+                    style="position: relative; cursor: pointer; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"
+                    onclick="document.getElementById('user-avatar-input').click();">
+                    <?php if (!empty($user['avatar'])): ?>
+                        <img src="<?= htmlspecialchars($user['avatar']) ?>" alt="Avatar"
+                            style="width: 100%; height: 100%; object-fit: cover; border-radius: 24px;">
+                    <?php else: ?>
+                        <?= strtoupper(substr($user['nom'] ?? 'U', 0, 1)) ?>
+                    <?php endif; ?>
+                    <div
+                        style="position: absolute; bottom: -10px; right: -10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); border: 3px solid white;">
+                        <i class="bi bi-camera-fill" style="color: white; font-size: 1rem;"></i>
+                    </div>
                 </div>
+                <form id="user-avatar-form" action="?page=upload_avatar" method="POST" enctype="multipart/form-data"
+                    style="display: none;">
+                    <input type="file" id="user-avatar-input" name="avatar" accept="image/*"
+                        onchange="document.getElementById('user-avatar-form').submit();">
+                </form>
                 <div class="profile-info">
                     <h1 class="profile-name"><?= htmlspecialchars($user['nom'] ?? 'Utilisateur') ?></h1>
                     <div class="profile-role">

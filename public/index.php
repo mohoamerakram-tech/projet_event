@@ -344,6 +344,13 @@ switch ($page) {
         $profile->changePassword();
         break;
 
+    case "upload_avatar":
+        require_login();
+        require_once __DIR__ . '/../controllers/ProfileController.php';
+        $profile = new ProfileController($pdo);
+        $profile->updateAvatar();
+        break;
+
     case "cancel_registration":
         require_login();
         $id = $_GET['id'] ?? null;

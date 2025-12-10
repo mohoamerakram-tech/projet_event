@@ -7,11 +7,13 @@
                 <div>
                     <?php if ($viewMode === 'details'): ?>
                         <div class="d-flex align-items-center gap-3">
-                            <a href="?page=inscriptions_list" class="btn btn-light rounded-circle shadow-sm" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                            <a href="?page=inscriptions_list" class="btn btn-light rounded-circle shadow-sm"
+                                style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
                                 <i class="bi bi-arrow-left"></i>
                             </a>
                             <div>
-                                <h4 class="mb-1 fw-bold"><?= htmlspecialchars($eventDetails['titre'] ?? 'Event Details') ?></h4>
+                                <h4 class="mb-1 fw-bold"><?= htmlspecialchars($eventDetails['titre'] ?? 'Event Details') ?>
+                                </h4>
                                 <p class="text-muted mb-0 small">Participants List</p>
                             </div>
                             <?php if (!empty($eventDetails['capacite'])): ?>
@@ -23,7 +25,9 @@
                                 ?>
                                 <div class="ms-4 d-flex align-items-center gap-3">
                                     <div class="progress" style="width: 120px; height: 8px;">
-                                        <div class="progress-bar <?= $barColor ?>" role="progressbar" style="width: <?= $pct ?>%" aria-valuenow="<?= $count ?>" aria-valuemin="0" aria-valuemax="<?= $cap ?>"></div>
+                                        <div class="progress-bar <?= $barColor ?>" role="progressbar"
+                                            style="width: <?= $pct ?>%" aria-valuenow="<?= $count ?>" aria-valuemin="0"
+                                            aria-valuemax="<?= $cap ?>"></div>
                                     </div>
                                     <span class="small fw-bold text-muted"><?= $count ?>/<?= $cap ?></span>
                                 </div>
@@ -38,7 +42,8 @@
                 </div>
                 <div class="d-flex align-items-center gap-3">
                     <?php if ($viewMode === 'details'): ?>
-                        <a href="#" onclick="downloadPDF(); return false;" class="btn btn-light shadow-sm me-2" title="Export PDF">
+                        <a href="#" onclick="downloadPDF(); return false;" class="btn btn-light shadow-sm me-2"
+                            title="Export PDF">
                             <i class="bi bi-file-earmark-pdf"></i>
                         </a>
                         <div class="btn-group shadow-sm" role="group">
@@ -66,22 +71,25 @@
                             <tr>
                                 <th class="px-4 py-3 text-secondary small fw-bold text-uppercase">Event</th>
                                 <th class="px-4 py-3 text-secondary small fw-bold text-uppercase">Date</th>
-                                <th class="px-4 py-3 text-secondary small fw-bold text-uppercase text-center">Participants</th>
+                                <th class="px-4 py-3 text-secondary small fw-bold text-uppercase text-center">Participants
+                                </th>
                                 <th class="px-4 py-3 text-end text-secondary small fw-bold text-uppercase">Action</th>
                             </tr>
                         </thead>
                         <tbody id="inscriptions-table-body">
                             <?php foreach ($eventsStats as $stat): ?>
-                                <tr style="cursor: pointer;" onclick="window.location='?page=inscriptions_list&event_id=<?= $stat['id'] ?>'">
+                                <tr style="cursor: pointer;"
+                                    onclick="window.location='?page=inscriptions_list&event_id=<?= $stat['id'] ?>'">
                                     <td class="px-4 py-3">
                                         <div class="d-flex align-items-center gap-3">
                                             <img src="uploads/<?= !empty($stat['image']) ? htmlspecialchars($stat['image']) : 'default.jpg' ?>"
-                                                alt="<?= htmlspecialchars($stat['titre']) ?>"
-                                                class="rounded-3 object-fit-cover"
+                                                alt="<?= htmlspecialchars($stat['titre']) ?>" class="rounded-3 object-fit-cover"
                                                 style="width: 48px; height: 48px;">
                                             <div>
                                                 <div class="fw-bold text-dark"><?= htmlspecialchars($stat['titre']) ?></div>
-                                                <div class="small text-muted"><i class="bi bi-geo-alt me-1"></i><?= htmlspecialchars($stat['lieu']) ?></div>
+                                                <div class="small text-muted"><i
+                                                        class="bi bi-geo-alt me-1"></i><?= htmlspecialchars($stat['lieu']) ?>
+                                                </div>
                                             </div>
                                         </div>
                                     </td>
@@ -89,15 +97,20 @@
                                         <?= date('d M Y', strtotime($stat['date_event'])) ?>
                                     </td>
                                     <td class="px-4 py-3 text-center">
-                                        <span class="badge bg-purple bg-opacity-10 text-purple rounded-pill px-3 py-2 fw-bold me-2" style="color: #7c3aed; background-color: #f3e8ff;">
+                                        <span
+                                            class="badge bg-purple bg-opacity-10 text-purple rounded-pill px-3 py-2 fw-bold me-2"
+                                            style="color: #7c3aed; background-color: #f3e8ff;">
                                             <i class="bi bi-people-fill me-1"></i> <?= $stat['total_participants'] ?>
                                         </span>
-                                        <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2 fw-bold">
-                                            <i class="bi bi-person-check-fill me-1"></i> <?= $stat['capacite'] ? $stat['capacite'] : '∞' ?>
+                                        <span
+                                            class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2 fw-bold">
+                                            <i class="bi bi-person-check-fill me-1"></i>
+                                            <?= $stat['capacite'] ? $stat['capacite'] : '∞' ?>
                                         </span>
                                     </td>
                                     <td class="px-4 py-3 text-end">
-                                        <a href="?page=inscriptions_list&event_id=<?= $stat['id'] ?>" class="btn btn-sm btn-light text-primary fw-bold px-3">
+                                        <a href="?page=inscriptions_list&event_id=<?= $stat['id'] ?>"
+                                            class="btn btn-sm btn-light text-primary fw-bold px-3">
                                             View List <i class="bi bi-arrow-right ms-1"></i>
                                         </a>
                                     </td>
@@ -143,7 +156,8 @@
                                             <?= htmlspecialchars($i['email_participant']) ?>
                                         </td>
                                         <td class="px-4 py-3">
-                                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2">
+                                            <span
+                                                class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2">
                                                 Confirmed
                                             </span>
                                         </td>
@@ -294,7 +308,7 @@
             .catch(err => console.error('Error generating PDF:', err));
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function ()  {
         const searchInput = document.getElementById('admin-search-input');
         const tableBody = document.getElementById('inscriptions-table-body');
         const listView = document.getElementById('participants-list-view');
@@ -336,7 +350,7 @@
 
         // View Toggles
         if (btnList && btnGrid) {
-            btnList.addEventListener('click', function() {
+            btnList.addEventListener('click', function ()  {
                 if (currentView === 'list') return;
                 currentView = 'list';
                 btnList.classList.add('active');
@@ -344,7 +358,7 @@
                 loadData(searchInput ? searchInput.value : ''); // Refresh data for new view
             });
 
-            btnGrid.addEventListener('click', function() {
+            btnGrid.addEventListener('click', function ( ) {
                 if (currentView === 'grid') return;
                 currentView = 'grid';
                 btnGrid.classList.add('active');
@@ -356,12 +370,12 @@
         if (searchInput) {
             const searchForm = searchInput.closest('form');
             if (searchForm) {
-                searchForm.addEventListener('submit', function(e) {
+                searchForm.addEventListener('submit', function  (e) {
                     e.preventDefault();
                 });
             }
 
-            searchInput.addEventListener('input', function() {
+            searchInput.addEventListener('input', function  () {
                 clearTimeout(timeout);
                 const query = this.value;
                 timeout = setTimeout(() => {
